@@ -2,16 +2,6 @@ import cv2
 import os
 import numpy as np
 from PIL import Image
-import time
-
-INPUT_DIR = "input"
-OUTPUT_DIR = "output"
-
-progress_state = {
-    "total": 0,
-    "current": 0,
-    "running": False
-}
 
 def is_back_card(image):
     rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -37,32 +27,25 @@ def combine_images(front, back):
     img.paste(back, (front.width, 0))
     return img
 
-def process_cards(clear_input=False):
-    os.makedirs(INPUT_DIR, exist_ok=True)
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
-
+def process_images(input_dir, output_dir, progress):
     files = sorted([
-        f for f in os.listdir(INPUT_DIR)
+        f for f in os.listdir(input_dir)
         if f.lower().endswith((".jpg", ".jpeg", ".png"))
     ])
 
     if len(files) < 2 or len(files) % 2 != 0:
-        progress_state["running"] = False
-        return {"error": "La carpeta input debe contener un número par de imágenes."}
+        raise ValueError("Se requiere un número par de imágenes")
 
-    total_cards = len(files) // 2
-    progress_state.update({
-        "total": total_cards,
-        "current": 0,
-        "running": True
-    })
+    total = len(files) // 2
+    progress["total"] = total
+    progress["current"] = 0
+    progress["running"] = True
 
-    results = []
     idx = 1
 
     for i in range(0, len(files), 2):
-        img1 = cv2.imread(os.path.join(INPUT_DIR, files[i]))
-        img2 = cv2.imread(os.path.join(INPUT_DIR, files[i+1]))
+        img1 = cv2.imread(os.path.join(input_dir, files[i]))
+        img2 = cv2.imread(os.path.join(input_dir, files[i + 1]))
 
         if is_back_card(img1):
             back, front = img1, img2
@@ -78,20 +61,9 @@ def process_cards(clear_input=False):
         combined = combine_images(front_pil, back_pil)
 
         name = f"card_{idx:03d}.png"
-        combined.save(os.path.join(OUTPUT_DIR, name))
-        results.append(name)
+        combined.save(os.path.join(output_dir, name))
 
         idx += 1
-        progress_state["current"] += 1
+        progress["current"] += 1
 
-        time.sleep(0.1)  # Simula carga real, mejora UX
-
-    if clear_input:
-        for f in os.listdir(INPUT_DIR):
-            os.remove(os.path.join(INPUT_DIR, f))
-
-    progress_state["running"] = False
-    return {"processed": results}
-
-def get_progress():
-    return progress_state
+    progress["running"] = False
