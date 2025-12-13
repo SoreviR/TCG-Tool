@@ -6,22 +6,40 @@
     <link rel="stylesheet" href="/static/style.css" />
   </head>
   <body>
-    <div class="container">
-      <h1>TCG Image Tool</h1>
-      <p>Sube las imágenes de tus cartas (front y back en pares).</p>
+    <div class="app">
+      <div class="card">
+        <h1>TCG Image Tool</h1>
+        <p class="subtitle">
+          Herramienta web para preparar imágenes de cartas listas para
+          Cardmarket.
+        </p>
 
-      <input type="file" id="files" multiple accept="image/*" />
+        <ul class="info">
+          <li>📸 Sube imágenes en pares (front y back)</li>
+          <li>✂️ Se recorta automáticamente ~5mm del marco</li>
+          <li>🖼️ El front siempre queda a la izquierda</li>
+          <li>📦 Máx. 10 cartas por proceso</li>
+        </ul>
 
-      <button id="startBtn">Procesar cartas</button>
+        <div class="upload">
+          <input type="file" id="files" multiple accept="image/*" />
+        </div>
 
-      <div class="progress-container">
-        <progress id="progress" value="0" max="100"></progress>
-        <span id="percent">0%</span>
+        <button id="startBtn">Procesar cartas</button>
+
+        <div class="progress-wrapper">
+          <div class="progress-bar">
+            <div id="progressFill"></div>
+          </div>
+          <span id="progressText">0%</span>
+        </div>
+
+        <a id="download" class="download" style="display: none">
+          Descargar resultados (ZIP)
+        </a>
+
+        <div id="log" class="log"></div>
       </div>
-
-      <a id="download" style="display: none">Descargar resultados</a>
-
-      <pre id="log"></pre>
     </div>
 
     <script src="/static/app.js"></script>

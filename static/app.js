@@ -1,9 +1,9 @@
 let sessionId = null;
-let interval = null;
+let currentProgress = 0;
+let targetProgress = 0;
 
 document.getElementById("startBtn").onclick = async () => {
-  const filesInput = document.getElementById("files");
-  const files = filesInput.files;
+  const files = document.getElementById("files").files;
   const log = document.getElementById("log");
 
   if (files.length === 0) {
@@ -16,39 +16,53 @@ document.getElementById("startBtn").onclick = async () => {
     formData.append("files", file);
   }
 
-  log.textContent = "Subiendo imágenes...\n";
+  log.textContent = "Subiendo imágenes…";
 
   const res = await fetch("/upload", {
     method: "POST",
     body: formData,
   });
 
+  if (!res.ok) {
+    const err = await res.text();
+    alert(err);
+    return;
+  }
+
   const data = await res.json();
   sessionId = data.session_id;
 
-  log.textContent += "Procesando...\n";
+  log.textContent = "Procesando cartas…";
 
-  interval = setInterval(updateProgress, 500);
+  pollProgress();
+  requestAnimationFrame(animateProgress);
 };
 
-async function updateProgress() {
+async function pollProgress() {
+  if (!sessionId) return;
+
   const res = await fetch(`/progress/${sessionId}`);
   const data = await res.json();
 
   if (data.total > 0) {
-    const pct = Math.round((data.current / data.total) * 100);
-    document.getElementById("progress").value = pct;
-    document.getElementById("percent").textContent = pct + "%";
+    targetProgress = Math.round((data.current / data.total) * 100);
   }
 
-  if (!data.running && data.total > 0) {
-    clearInterval(interval);
-    document.getElementById("progress").value = 100;
-    document.getElementById("percent").textContent = "100%";
-
-    const link = document.getElementById("download");
-    link.href = `/download/${sessionId}`;
-    link.style.display = "block";
-    link.textContent = "Descargar resultados (ZIP)";
+  if (data.running) {
+    setTimeout(pollProgress, 500);
+  } else {
+    targetProgress = 100;
+    document.getElementById("download").href = `/download/${sessionId}`;
+    document.getElementById("download").style.display = "block";
+    document.getElementById("log").textContent = "Proceso finalizado.";
   }
+}
+
+function animateProgress() {
+  if (currentProgress < targetProgress) {
+    currentProgress += 1;
+    document.getElementById("progressFill").style.width = currentProgress + "%";
+    document.getElementById("progressText").textContent = currentProgress + "%";
+  }
+  requestAnimationFrame(animateProgress);
 }
