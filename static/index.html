@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>TCG Image Tool</title>
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <h1>TCG Image Tool</h1>
+
+    <button id="startBtn" onclick="startProcess()">Procesar cartas</button>
+
+    <label>
+      <input type="checkbox" id="clear" />
+      Borrar imágenes de input al finalizar
+    </label>
+
+    <progress id="progress" value="0" max="100"></progress>
+    <span id="percent">0%</span>
+
+    <pre id="log"></pre>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>
