@@ -70,3 +70,13 @@ def download_results(session_id: str):
         media_type="application/zip",
         filename="tcg_cards.zip"
     )
+
+# --------------------------------------------------------------
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+@app.get("/")
+def index():
+    return FileResponse("static/index.html")

@@ -6,19 +6,23 @@
     <link rel="stylesheet" href="/static/style.css" />
   </head>
   <body>
-    <h1>TCG Image Tool</h1>
+    <div class="container">
+      <h1>TCG Image Tool</h1>
+      <p>Sube las imágenes de tus cartas (front y back en pares).</p>
 
-    <button id="startBtn" onclick="startProcess()">Procesar cartas</button>
+      <input type="file" id="files" multiple accept="image/*" />
 
-    <label>
-      <input type="checkbox" id="clear" />
-      Borrar imágenes de input al finalizar
-    </label>
+      <button id="startBtn">Procesar cartas</button>
 
-    <progress id="progress" value="0" max="100"></progress>
-    <span id="percent">0%</span>
+      <div class="progress-container">
+        <progress id="progress" value="0" max="100"></progress>
+        <span id="percent">0%</span>
+      </div>
 
-    <pre id="log"></pre>
+      <a id="download" style="display: none">Descargar resultados</a>
+
+      <pre id="log"></pre>
+    </div>
 
     <script src="/static/app.js"></script>
   </body>
