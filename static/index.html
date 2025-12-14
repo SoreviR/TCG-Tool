@@ -9,7 +9,7 @@
   <body>
     <button class="menu-toggle" id="menuToggle">☰</button>
 
-    <nav class="binder collapsed" id="binder">
+    <nav class="binder" id="binder">
       <div class="binder-logo">TCG Binder</div>
 
       <ul>
@@ -33,11 +33,20 @@
           </p>
         </header>
 
-        <div class="info-box">
-          <p data-i18n="info">
-            • Se recortará un marco de 5mm<br />
-            • Las imágenes deben subirse en pares (Front / Back)
-          </p>
+        <div class="info-box" data-i18n="info">
+          • Se recortará un marco de 5mm<br />
+          • Las imágenes deben subirse en pares (Front / Back)
+        </div>
+
+        <!-- Selector TCG -->
+        <div class="tcg-selector">
+          <label data-i18n="tcg">Tipo de TCG</label>
+          <select id="tcgSelect">
+            <option value="auto">Automático</option>
+            <option value="pokemon">Pokémon</option>
+            <option value="mtg">Magic: The Gathering</option>
+            <option value="yugioh">Yu-Gi-Oh!</option>
+          </select>
         </div>
 
         <div id="dropzone" class="dropzone">
@@ -48,6 +57,8 @@
         <div id="preview" class="preview"></div>
 
         <button id="startBtn" data-i18n="processBtn">Procesar cartas</button>
+
+        <button id="resetBtn" class="reset">Resetear herramienta</button>
 
         <div class="progress-wrapper">
           <div class="progress-bar">
@@ -70,7 +81,7 @@
     </main>
 
     <footer>
-      <span data-i18n="footer"> Hecho para coleccionistas </span>
+      <span data-i18n="footer">Hecho para coleccionistas</span>
     </footer>
 
     <script src="/static/app.js"></script>

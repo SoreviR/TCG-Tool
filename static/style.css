@@ -1,7 +1,7 @@
 :root {
   --bg: #0f172a;
   --bg-soft: #1e293b;
-  --card: rgba(15, 23, 42, 0.85);
+  --card: rgba(15, 23, 42, 0.9);
   --text: #e5e7eb;
   --muted: #94a3b8;
   --primary: #6366f1;
@@ -25,36 +25,35 @@ body {
   font-family: system-ui, sans-serif;
   background: linear-gradient(120deg, var(--bg), var(--bg-soft));
   color: var(--text);
-  transition: background 0.4s, color 0.4s;
+  min-height: 100vh;
 }
 
+/* MENU BUTTON (MOBILE ONLY) */
 .menu-toggle {
+  display: none;
   position: fixed;
   top: 14px;
   left: 14px;
-  z-index: 100;
+  z-index: 1001;
   background: var(--primary);
   border: none;
   color: white;
   font-size: 18px;
   padding: 10px;
   border-radius: 10px;
-  cursor: pointer;
 }
 
+/* NAVBAR */
 .binder {
   position: fixed;
-  left: 0;
   top: 0;
+  left: 0;
   width: 220px;
   height: 100vh;
   background: var(--bg-soft);
   padding: 20px;
-  transition: transform 0.3s;
-}
-
-.binder.collapsed {
-  transform: translateX(-100%);
+  z-index: 1000;
+  transition: transform 0.3s ease;
 }
 
 .binder-logo {
@@ -93,8 +92,10 @@ body {
   cursor: pointer;
 }
 
+/* MAIN CONTENT */
 .content {
-  padding: 80px 20px;
+  margin-left: 220px;
+  padding: 60px 20px;
   display: flex;
   justify-content: center;
 }
@@ -103,7 +104,6 @@ body {
   max-width: 600px;
   width: 100%;
   background: var(--card);
-  backdrop-filter: blur(20px);
   padding: 30px;
   border-radius: 24px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
@@ -117,6 +117,17 @@ header p {
   margin: 16px 0;
   font-size: 14px;
   color: var(--muted);
+}
+
+.tcg-selector {
+  margin: 16px 0;
+}
+
+select {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
 }
 
 .dropzone {
@@ -140,7 +151,7 @@ header p {
 }
 
 button {
-  margin-top: 20px;
+  margin-top: 16px;
   width: 100%;
   padding: 14px;
   background: var(--primary);
@@ -148,6 +159,12 @@ button {
   border-radius: 14px;
   color: white;
   font-weight: 700;
+}
+
+button.reset {
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--muted);
 }
 
 .progress-wrapper {
@@ -176,4 +193,23 @@ footer {
   padding: 20px;
   font-size: 12px;
   color: var(--muted);
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .menu-toggle {
+    display: block;
+  }
+
+  .binder {
+    transform: translateX(-100%);
+  }
+
+  .binder.open {
+    transform: translateX(0);
+  }
+
+  .content {
+    margin-left: 0;
+  }
 }

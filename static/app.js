@@ -1,20 +1,12 @@
-/*************************************************
- * CONFIG
- *************************************************/
 const MAX_IMAGES = 20;
 
-/*************************************************
- * STATE
- *************************************************/
 let selectedFiles = [];
 let sessionId = null;
 
 let lang = localStorage.getItem("lang") || "es";
 let theme = localStorage.getItem("theme") || "dark";
 
-/*************************************************
- * I18N
- *************************************************/
+/* I18N */
 const dict = {
   es: {
     process: "Procesar",
@@ -27,10 +19,8 @@ const dict = {
     processBtn: "Procesar cartas",
     download: "Descargar imágenes",
     footer: "Hecho para coleccionistas",
-    errorPairs: "Debes subir un número par de imágenes",
-    errorLimit: "Has superado el límite de imágenes",
-    uploading: "Subiendo imágenes...",
-    processing: "Procesando cartas...",
+    tcg: "Tipo de TCG",
+    reset: "Resetear herramienta",
   },
   en: {
     process: "Process",
@@ -43,10 +33,8 @@ const dict = {
     processBtn: "Process cards",
     download: "Download images",
     footer: "Made for collectors",
-    errorPairs: "You must upload an even number of images",
-    errorLimit: "Image limit exceeded",
-    uploading: "Uploading images...",
-    processing: "Processing cards...",
+    tcg: "TCG Type",
+    reset: "Reset tool",
   },
 };
 
@@ -54,29 +42,18 @@ function applyLang() {
   document.querySelectorAll("[data-i18n]").forEach((el) => {
     el.innerText = dict[lang][el.dataset.i18n];
   });
+  document.getElementById("langToggle").innerText = lang.toUpperCase();
 }
 
 function applyTheme() {
   document.body.classList.toggle("light", theme === "light");
+  document.getElementById("themeToggle").innerText =
+    theme === "light" ? "🌙" : "☀️";
 }
 
-/*************************************************
- * UI ELEMENTS
- *************************************************/
-const dropzone = document.getElementById("dropzone");
-const fileInput = document.getElementById("files");
-const preview = document.getElementById("preview");
-const startBtn = document.getElementById("startBtn");
-const progressFill = document.getElementById("progressFill");
-const progressText = document.getElementById("progressText");
-const downloadLink = document.getElementById("download");
-const log = document.getElementById("log");
-
-/*************************************************
- * NAV / TOGGLES
- *************************************************/
+/* NAVBAR */
 document.getElementById("menuToggle").onclick = () => {
-  document.getElementById("binder").classList.toggle("collapsed");
+  document.getElementById("binder").classList.toggle("open");
 };
 
 document.getElementById("themeToggle").onclick = () => {
@@ -91,9 +68,11 @@ document.getElementById("langToggle").onclick = () => {
   applyLang();
 };
 
-/*************************************************
- * FILE HANDLING
- *************************************************/
+/* FILE HANDLING */
+const dropzone = document.getElementById("dropzone");
+const fileInput = document.getElementById("files");
+const preview = document.getElementById("preview");
+
 function updatePreview() {
   preview.innerHTML = "";
   selectedFiles.forEach((file) => {
@@ -105,97 +84,38 @@ function updatePreview() {
 
 function addFiles(files) {
   for (let file of files) {
-    if (selectedFiles.length >= MAX_IMAGES) {
-      alert(dict[lang].errorLimit);
-      break;
-    }
+    if (selectedFiles.length >= MAX_IMAGES) break;
     selectedFiles.push(file);
   }
   updatePreview();
 }
 
-/*************************************************
- * DRAG & DROP
- *************************************************/
-dropzone.addEventListener("click", () => fileInput.click());
+dropzone.onclick = () => fileInput.click();
 
-dropzone.addEventListener("dragover", (e) => {
+dropzone.ondragover = (e) => {
   e.preventDefault();
-  dropzone.classList.add("hover");
-});
+};
 
-dropzone.addEventListener("dragleave", () => {
-  dropzone.classList.remove("hover");
-});
-
-dropzone.addEventListener("drop", (e) => {
+dropzone.ondrop = (e) => {
   e.preventDefault();
-  dropzone.classList.remove("hover");
   addFiles(e.dataTransfer.files);
-});
+};
 
-fileInput.addEventListener("change", () => {
+fileInput.onchange = () => {
   addFiles(fileInput.files);
   fileInput.value = "";
-});
+};
 
-/*************************************************
- * UPLOAD & PROCESS
- *************************************************/
-startBtn.addEventListener("click", async () => {
-  if (selectedFiles.length === 0) return;
+/* RESET */
+document.getElementById("resetBtn").onclick = () => {
+  selectedFiles = [];
+  sessionId = null;
+  preview.innerHTML = "";
+  document.getElementById("progressFill").style.width = "0%";
+  document.getElementById("progressText").innerText = "0%";
+  document.getElementById("download").style.display = "none";
+};
 
-  if (selectedFiles.length % 2 !== 0) {
-    alert(dict[lang].errorPairs);
-    return;
-  }
-
-  progressFill.style.width = "0%";
-  progressText.innerText = "0%";
-  downloadLink.style.display = "none";
-  log.innerText = dict[lang].uploading;
-
-  const formData = new FormData();
-  selectedFiles.forEach((f) => formData.append("files", f));
-
-  const res = await fetch("/upload", {
-    method: "POST",
-    body: formData,
-  });
-
-  const data = await res.json();
-  sessionId = data.session_id;
-
-  log.innerText = dict[lang].processing;
-  pollProgress();
-});
-
-/*************************************************
- * PROGRESS POLLING
- *************************************************/
-async function pollProgress() {
-  const res = await fetch(`/progress/${sessionId}`);
-  const data = await res.json();
-
-  if (data.total > 0) {
-    const percent = Math.round((data.current / data.total) * 100);
-    progressFill.style.width = percent + "%";
-    progressText.innerText = percent + "%";
-  }
-
-  if (data.running) {
-    setTimeout(pollProgress, 500);
-  } else {
-    progressFill.style.width = "100%";
-    progressText.innerText = "100%";
-    downloadLink.href = `/download/${sessionId}`;
-    downloadLink.style.display = "block";
-    log.innerText = "";
-  }
-}
-
-/*************************************************
- * INIT
- *************************************************/
+/* INIT */
 applyLang();
 applyTheme();
