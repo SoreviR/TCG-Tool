@@ -10,20 +10,25 @@
       <div class="card">
         <h1>TCG Image Tool</h1>
         <p class="subtitle">
-          Herramienta web para preparar imágenes de cartas listas para
-          Cardmarket.
+          Prepara imágenes de cartas listas para Cardmarket.
         </p>
 
         <ul class="info">
-          <li>📸 Sube imágenes en pares (front y back)</li>
-          <li>✂️ Se recorta automáticamente ~5mm del marco</li>
-          <li>🖼️ El front siempre queda a la izquierda</li>
+          <li>📸 Imágenes en pares (front + back)</li>
+          <li>✂️ Recorte automático (~5mm)</li>
+          <li>🖼️ Front siempre a la izquierda</li>
           <li>📦 Máx. 10 cartas por proceso</li>
         </ul>
 
-        <div class="upload">
+        <div id="dropzone" class="dropzone">
+          <p>
+            Arrastra y suelta las imágenes aquí<br />o haz clic para
+            seleccionarlas
+          </p>
           <input type="file" id="files" multiple accept="image/*" />
         </div>
+
+        <div id="preview" class="preview"></div>
 
         <button id="startBtn">Procesar cartas</button>
 

@@ -1,20 +1,62 @@
+let filesList = [];
 let sessionId = null;
 let currentProgress = 0;
 let targetProgress = 0;
 
-document.getElementById("startBtn").onclick = async () => {
-  const files = document.getElementById("files").files;
-  const log = document.getElementById("log");
+const dropzone = document.getElementById("dropzone");
+const fileInput = document.getElementById("files");
+const preview = document.getElementById("preview");
+const log = document.getElementById("log");
 
-  if (files.length === 0) {
+dropzone.addEventListener("dragover", (e) => {
+  e.preventDefault();
+  dropzone.classList.add("dragover");
+});
+
+dropzone.addEventListener("dragleave", () => {
+  dropzone.classList.remove("dragover");
+});
+
+dropzone.addEventListener("drop", (e) => {
+  e.preventDefault();
+  dropzone.classList.remove("dragover");
+  addFiles(e.dataTransfer.files);
+});
+
+fileInput.addEventListener("change", () => {
+  addFiles(fileInput.files);
+});
+
+function addFiles(files) {
+  for (const file of files) {
+    if (!file.type.startsWith("image/")) continue;
+    filesList.push(file);
+  }
+
+  renderPreview();
+}
+
+function renderPreview() {
+  preview.innerHTML = "";
+
+  filesList.forEach((file, idx) => {
+    const img = document.createElement("img");
+    img.src = URL.createObjectURL(file);
+    img.title = idx % 2 === 0 ? "Front" : "Back";
+    preview.appendChild(img);
+  });
+
+  log.textContent = `${filesList.length} imágenes seleccionadas`;
+}
+
+document.getElementById("startBtn").onclick = async () => {
+  if (filesList.length === 0) {
     alert("Selecciona imágenes primero");
     return;
   }
 
   const formData = new FormData();
-  for (const file of files) {
-    formData.append("files", file);
-  }
+  filesList.forEach((f) => formData.append("files", f));
 
   log.textContent = "Subiendo imágenes…";
 
@@ -24,8 +66,7 @@ document.getElementById("startBtn").onclick = async () => {
   });
 
   if (!res.ok) {
-    const err = await res.text();
-    alert(err);
+    alert(await res.text());
     return;
   }
 
@@ -33,7 +74,6 @@ document.getElementById("startBtn").onclick = async () => {
   sessionId = data.session_id;
 
   log.textContent = "Procesando cartas…";
-
   pollProgress();
   requestAnimationFrame(animateProgress);
 };
@@ -54,7 +94,7 @@ async function pollProgress() {
     targetProgress = 100;
     document.getElementById("download").href = `/download/${sessionId}`;
     document.getElementById("download").style.display = "block";
-    document.getElementById("log").textContent = "Proceso finalizado.";
+    log.textContent = "Proceso finalizado.";
   }
 }
 
