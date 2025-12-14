@@ -9,12 +9,26 @@ let theme = localStorage.getItem("theme") || "dark";
 /* I18N */
 const dict = {
   es: {
-    processBtn: "Procesar cartas",
+    title: "Procesador de Cartas TCG",
+    description:
+      "Sube imágenes en pares (front/back). Se recortará automáticamente un marco de 5mm.",
+    dropzone: "Arrastra imágenes aquí o haz click para seleccionarlas",
+    process: "Procesar cartas",
+    reset: "Resetear",
     download: "Descargar imágenes",
+    nav_tool: "Herramienta",
+    nav_about: "Acerca de",
   },
   en: {
-    processBtn: "Process cards",
+    title: "TCG Card Processor",
+    description:
+      "Upload images in pairs (front/back). A 5mm border will be cropped automatically.",
+    dropzone: "Drag & drop images here or click to select",
+    process: "Process cards",
+    reset: "Reset",
     download: "Download images",
+    nav_tool: "Tool",
+    nav_about: "About",
   },
 };
 
@@ -23,20 +37,30 @@ function applyLang() {
     el.innerText = dict[lang][el.dataset.i18n];
   });
   document.getElementById("langToggle").innerText = lang.toUpperCase();
+  localStorage.setItem("lang", lang);
 }
 
 function applyTheme() {
   document.body.classList.toggle("light", theme === "light");
   document.getElementById("themeToggle").innerText =
     theme === "light" ? "🌙" : "☀️";
+  localStorage.setItem("theme", theme);
 }
 
 /* NAVBAR */
 const binder = document.getElementById("binder");
-const menuToggle = document.getElementById("menuToggle");
-
-menuToggle.onclick = () => {
+document.getElementById("menuToggle").onclick = () => {
   binder.classList.toggle("open");
+};
+
+document.getElementById("langToggle").onclick = () => {
+  lang = lang === "es" ? "en" : "es";
+  applyLang();
+};
+
+document.getElementById("themeToggle").onclick = () => {
+  theme = theme === "dark" ? "light" : "dark";
+  applyTheme();
 };
 
 /* FILE HANDLING */
@@ -75,26 +99,23 @@ fileInput.onchange = () => {
   fileInput.value = "";
 };
 
-/* PROCESS BUTTON — FIX PRINCIPAL */
+/* PROCESS */
 document.getElementById("startBtn").onclick = async () => {
   if (selectedFiles.length < 2 || selectedFiles.length % 2 !== 0) {
-    alert("Debes subir imágenes en pares (front/back).");
+    alert("Please upload images in pairs.");
     return;
   }
 
   const formData = new FormData();
   selectedFiles.forEach((f) => formData.append("files", f));
 
-  const res = await fetch("/process", {
-    method: "POST",
-    body: formData,
-  });
-
+  const res = await fetch("/process", { method: "POST", body: formData });
   const data = await res.json();
-  sessionId = data.session_id;
 
-  document.getElementById("download").href = `/download/${sessionId}`;
-  document.getElementById("download").style.display = "block";
+  sessionId = data.session_id;
+  const dl = document.getElementById("download");
+  dl.href = `/download/${sessionId}`;
+  dl.style.display = "block";
 };
 
 /* RESET */

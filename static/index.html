@@ -1,71 +1,44 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>TCG Binder Tool</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TCG Image Tool</title>
     <link rel="stylesheet" href="/static/style.css" />
   </head>
   <body>
-    <button class="menu-toggle" id="menuToggle">☰</button>
+    <button id="menuToggle" class="menu-toggle">☰</button>
 
-    <nav class="binder" id="binder">
-      <div class="binder-logo">TCG Binder</div>
+    <nav id="binder" class="binder">
+      <div class="binder-logo">TCG Tool</div>
 
       <ul>
-        <li class="active" data-i18n="process">Procesar</li>
-        <li data-i18n="how">Cómo funciona</li>
-        <li data-i18n="about">Acerca</li>
+        <li class="active" data-i18n="nav_tool">Tool</li>
+        <li data-i18n="nav_about">About</li>
       </ul>
 
       <div class="binder-controls">
-        <button id="themeToggle">🌙</button>
         <button id="langToggle">ES</button>
+        <button id="themeToggle">☀️</button>
       </div>
     </nav>
 
     <main class="content">
-      <section class="tool-card">
-        <header>
-          <h1 data-i18n="title">Preparar cartas para Cardmarket</h1>
-          <p data-i18n="subtitle">
-            Sube tus fotos y genera imágenes listas para vender.
-          </p>
-        </header>
-
-        <div class="info-box" data-i18n="info">
-          • Se recortará un marco de 5mm<br />
-          • Las imágenes deben subirse en pares (Front / Back)
-        </div>
-
-        <!-- Selector TCG -->
-        <div class="tcg-selector">
-          <label data-i18n="tcg">Tipo de TCG</label>
-          <select id="tcgSelect">
-            <option value="auto">Automático</option>
-            <option value="pokemon">Pokémon</option>
-            <option value="mtg">Magic: The Gathering</option>
-            <option value="yugioh">Yu-Gi-Oh!</option>
-          </select>
-        </div>
+      <div class="tool-card">
+        <h1 data-i18n="title">TCG Image Processor</h1>
+        <p data-i18n="description">
+          Upload card photos in pairs (front/back). A 5mm border will be cropped
+          automatically.
+        </p>
 
         <div id="dropzone" class="dropzone">
-          <p data-i18n="drop">Arrastra aquí tus imágenes</p>
-          <input type="file" id="files" multiple accept="image/*" />
+          <p data-i18n="dropzone">Drag & drop images here or click to select</p>
+          <input type="file" id="files" multiple accept="image/*" hidden />
         </div>
 
         <div id="preview" class="preview"></div>
 
-        <button id="startBtn" data-i18n="processBtn">Procesar cartas</button>
-
-        <button id="resetBtn" class="reset">Resetear herramienta</button>
-
-        <div class="progress-wrapper">
-          <div class="progress-bar">
-            <div id="progressFill"></div>
-          </div>
-          <span id="progressText">0%</span>
-        </div>
+        <button id="startBtn" data-i18n="process">Process cards</button>
+        <button id="resetBtn" class="reset" data-i18n="reset">Reset</button>
 
         <a
           id="download"
@@ -73,16 +46,10 @@
           style="display: none"
           data-i18n="download"
         >
-          Descargar imágenes
+          Download results
         </a>
-
-        <div id="log" class="log"></div>
-      </section>
+      </div>
     </main>
-
-    <footer>
-      <span data-i18n="footer">Hecho para coleccionistas</span>
-    </footer>
 
     <script src="/static/app.js"></script>
   </body>
