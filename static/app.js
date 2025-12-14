@@ -9,32 +9,12 @@ let theme = localStorage.getItem("theme") || "dark";
 /* I18N */
 const dict = {
   es: {
-    process: "Procesar",
-    how: "Cómo funciona",
-    about: "Acerca",
-    title: "Preparar cartas para Cardmarket",
-    subtitle: "Sube tus fotos y genera imágenes listas para vender.",
-    info: "• Se recortará un marco de 5mm\n• Las imágenes deben subirse en pares (Front / Back)",
-    drop: "Arrastra aquí tus imágenes",
     processBtn: "Procesar cartas",
     download: "Descargar imágenes",
-    footer: "Hecho para coleccionistas",
-    tcg: "Tipo de TCG",
-    reset: "Resetear herramienta",
   },
   en: {
-    process: "Process",
-    how: "How it works",
-    about: "About",
-    title: "Prepare cards for Cardmarket",
-    subtitle: "Upload photos and generate ready-to-sell images.",
-    info: "• A 5mm border will be cropped\n• Images must be uploaded in pairs",
-    drop: "Drag your images here",
     processBtn: "Process cards",
     download: "Download images",
-    footer: "Made for collectors",
-    tcg: "TCG Type",
-    reset: "Reset tool",
   },
 };
 
@@ -52,26 +32,17 @@ function applyTheme() {
 }
 
 /* NAVBAR */
-document.getElementById("menuToggle").onclick = () => {
-  document.getElementById("binder").classList.toggle("open");
-};
+const binder = document.getElementById("binder");
+const menuToggle = document.getElementById("menuToggle");
 
-document.getElementById("themeToggle").onclick = () => {
-  theme = theme === "dark" ? "light" : "dark";
-  localStorage.setItem("theme", theme);
-  applyTheme();
-};
-
-document.getElementById("langToggle").onclick = () => {
-  lang = lang === "es" ? "en" : "es";
-  localStorage.setItem("lang", lang);
-  applyLang();
+menuToggle.onclick = () => {
+  binder.classList.toggle("open");
 };
 
 /* FILE HANDLING */
-const dropzone = document.getElementById("dropzone");
-const fileInput = document.getElementById("files");
 const preview = document.getElementById("preview");
+const fileInput = document.getElementById("files");
+const dropzone = document.getElementById("dropzone");
 
 function updatePreview() {
   preview.innerHTML = "";
@@ -92,18 +63,38 @@ function addFiles(files) {
 
 dropzone.onclick = () => fileInput.click();
 
-dropzone.ondragover = (e) => {
-  e.preventDefault();
-};
-
 dropzone.ondrop = (e) => {
   e.preventDefault();
   addFiles(e.dataTransfer.files);
 };
 
+dropzone.ondragover = (e) => e.preventDefault();
+
 fileInput.onchange = () => {
   addFiles(fileInput.files);
   fileInput.value = "";
+};
+
+/* PROCESS BUTTON — FIX PRINCIPAL */
+document.getElementById("startBtn").onclick = async () => {
+  if (selectedFiles.length < 2 || selectedFiles.length % 2 !== 0) {
+    alert("Debes subir imágenes en pares (front/back).");
+    return;
+  }
+
+  const formData = new FormData();
+  selectedFiles.forEach((f) => formData.append("files", f));
+
+  const res = await fetch("/process", {
+    method: "POST",
+    body: formData,
+  });
+
+  const data = await res.json();
+  sessionId = data.session_id;
+
+  document.getElementById("download").href = `/download/${sessionId}`;
+  document.getElementById("download").style.display = "block";
 };
 
 /* RESET */
@@ -111,8 +102,6 @@ document.getElementById("resetBtn").onclick = () => {
   selectedFiles = [];
   sessionId = null;
   preview.innerHTML = "";
-  document.getElementById("progressFill").style.width = "0%";
-  document.getElementById("progressText").innerText = "0%";
   document.getElementById("download").style.display = "none";
 };
 
