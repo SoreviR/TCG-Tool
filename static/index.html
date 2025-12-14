@@ -3,52 +3,51 @@
   <head>
     <meta charset="UTF-8" />
     <title>TCG Binder Tool</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="/static/style.css" />
   </head>
   <body>
-    <div class="background-cards"></div>
+    <button class="menu-toggle" id="menuToggle">☰</button>
 
-    <nav class="binder">
+    <nav class="binder collapsed" id="binder">
       <div class="binder-logo">TCG Binder</div>
+
       <ul>
-        <li class="active">Procesar</li>
-        <li>Cómo funciona</li>
-        <li>Perfil TCG</li>
-        <li>Acerca</li>
+        <li class="active" data-i18n="process">Procesar</li>
+        <li data-i18n="how">Cómo funciona</li>
+        <li data-i18n="about">Acerca</li>
       </ul>
+
+      <div class="binder-controls">
+        <button id="themeToggle">🌙</button>
+        <button id="langToggle">ES</button>
+      </div>
     </nav>
 
     <main class="content">
       <section class="tool-card">
         <header>
-          <h1>Preparar cartas para Cardmarket</h1>
-          <p>
-            Sube tus fotos, nosotros hacemos el resto.<br />
-            Diseñado para coleccionistas.
+          <h1 data-i18n="title">Preparar cartas para Cardmarket</h1>
+          <p data-i18n="subtitle">
+            Sube tus fotos y genera imágenes listas para vender.
           </p>
         </header>
 
-        <div class="tcg-selector">
-          <label>Tipo de cartas</label>
-          <select id="tcg">
-            <option value="generic">Automático</option>
-            <option value="pokemon">Pokémon</option>
-            <option value="mtg">Magic: The Gathering</option>
-            <option value="yugioh">Yu-Gi-Oh!</option>
-          </select>
+        <div class="info-box">
+          <p data-i18n="info">
+            • Se recortará un marco de 5mm<br />
+            • Las imágenes deben subirse en pares (Front / Back)
+          </p>
         </div>
 
         <div id="dropzone" class="dropzone">
-          <p>
-            Arrastra aquí tus imágenes<br />
-            <span>Pares: Front + Back</span>
-          </p>
+          <p data-i18n="drop">Arrastra aquí tus imágenes</p>
           <input type="file" id="files" multiple accept="image/*" />
         </div>
 
         <div id="preview" class="preview"></div>
 
-        <button id="startBtn">Procesar cartas</button>
+        <button id="startBtn" data-i18n="processBtn">Procesar cartas</button>
 
         <div class="progress-wrapper">
           <div class="progress-bar">
@@ -57,7 +56,12 @@
           <span id="progressText">0%</span>
         </div>
 
-        <a id="download" class="download" style="display: none">
+        <a
+          id="download"
+          class="download"
+          style="display: none"
+          data-i18n="download"
+        >
           Descargar imágenes
         </a>
 
@@ -65,7 +69,9 @@
       </section>
     </main>
 
-    <footer>Hecho para coleccionistas · TCG Binder Tool</footer>
+    <footer>
+      <span data-i18n="footer"> Hecho para coleccionistas </span>
+    </footer>
 
     <script src="/static/app.js"></script>
   </body>

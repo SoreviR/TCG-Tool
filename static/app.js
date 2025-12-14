@@ -1,110 +1,201 @@
-let filesList = [];
-let sessionId = null;
-let currentProgress = 0;
-let targetProgress = 0;
+/*************************************************
+ * CONFIG
+ *************************************************/
+const MAX_IMAGES = 20;
 
+/*************************************************
+ * STATE
+ *************************************************/
+let selectedFiles = [];
+let sessionId = null;
+
+let lang = localStorage.getItem("lang") || "es";
+let theme = localStorage.getItem("theme") || "dark";
+
+/*************************************************
+ * I18N
+ *************************************************/
+const dict = {
+  es: {
+    process: "Procesar",
+    how: "Cómo funciona",
+    about: "Acerca",
+    title: "Preparar cartas para Cardmarket",
+    subtitle: "Sube tus fotos y genera imágenes listas para vender.",
+    info: "• Se recortará un marco de 5mm\n• Las imágenes deben subirse en pares (Front / Back)",
+    drop: "Arrastra aquí tus imágenes",
+    processBtn: "Procesar cartas",
+    download: "Descargar imágenes",
+    footer: "Hecho para coleccionistas",
+    errorPairs: "Debes subir un número par de imágenes",
+    errorLimit: "Has superado el límite de imágenes",
+    uploading: "Subiendo imágenes...",
+    processing: "Procesando cartas...",
+  },
+  en: {
+    process: "Process",
+    how: "How it works",
+    about: "About",
+    title: "Prepare cards for Cardmarket",
+    subtitle: "Upload photos and generate ready-to-sell images.",
+    info: "• A 5mm border will be cropped\n• Images must be uploaded in pairs",
+    drop: "Drag your images here",
+    processBtn: "Process cards",
+    download: "Download images",
+    footer: "Made for collectors",
+    errorPairs: "You must upload an even number of images",
+    errorLimit: "Image limit exceeded",
+    uploading: "Uploading images...",
+    processing: "Processing cards...",
+  },
+};
+
+function applyLang() {
+  document.querySelectorAll("[data-i18n]").forEach((el) => {
+    el.innerText = dict[lang][el.dataset.i18n];
+  });
+}
+
+function applyTheme() {
+  document.body.classList.toggle("light", theme === "light");
+}
+
+/*************************************************
+ * UI ELEMENTS
+ *************************************************/
 const dropzone = document.getElementById("dropzone");
 const fileInput = document.getElementById("files");
 const preview = document.getElementById("preview");
+const startBtn = document.getElementById("startBtn");
+const progressFill = document.getElementById("progressFill");
+const progressText = document.getElementById("progressText");
+const downloadLink = document.getElementById("download");
 const log = document.getElementById("log");
-const tcgSelect = document.getElementById("tcg");
+
+/*************************************************
+ * NAV / TOGGLES
+ *************************************************/
+document.getElementById("menuToggle").onclick = () => {
+  document.getElementById("binder").classList.toggle("collapsed");
+};
+
+document.getElementById("themeToggle").onclick = () => {
+  theme = theme === "dark" ? "light" : "dark";
+  localStorage.setItem("theme", theme);
+  applyTheme();
+};
+
+document.getElementById("langToggle").onclick = () => {
+  lang = lang === "es" ? "en" : "es";
+  localStorage.setItem("lang", lang);
+  applyLang();
+};
+
+/*************************************************
+ * FILE HANDLING
+ *************************************************/
+function updatePreview() {
+  preview.innerHTML = "";
+  selectedFiles.forEach((file) => {
+    const img = document.createElement("img");
+    img.src = URL.createObjectURL(file);
+    preview.appendChild(img);
+  });
+}
+
+function addFiles(files) {
+  for (let file of files) {
+    if (selectedFiles.length >= MAX_IMAGES) {
+      alert(dict[lang].errorLimit);
+      break;
+    }
+    selectedFiles.push(file);
+  }
+  updatePreview();
+}
+
+/*************************************************
+ * DRAG & DROP
+ *************************************************/
+dropzone.addEventListener("click", () => fileInput.click());
 
 dropzone.addEventListener("dragover", (e) => {
   e.preventDefault();
-  dropzone.classList.add("dragover");
+  dropzone.classList.add("hover");
 });
 
 dropzone.addEventListener("dragleave", () => {
-  dropzone.classList.remove("dragover");
+  dropzone.classList.remove("hover");
 });
 
 dropzone.addEventListener("drop", (e) => {
   e.preventDefault();
-  dropzone.classList.remove("dragover");
+  dropzone.classList.remove("hover");
   addFiles(e.dataTransfer.files);
 });
 
 fileInput.addEventListener("change", () => {
   addFiles(fileInput.files);
+  fileInput.value = "";
 });
 
-function addFiles(files) {
-  for (const file of files) {
-    if (!file.type.startsWith("image/")) continue;
-    filesList.push(file);
-  }
-  renderPreview();
-}
+/*************************************************
+ * UPLOAD & PROCESS
+ *************************************************/
+startBtn.addEventListener("click", async () => {
+  if (selectedFiles.length === 0) return;
 
-function renderPreview() {
-  preview.innerHTML = "";
-  filesList.forEach((file, idx) => {
-    const img = document.createElement("img");
-    img.src = URL.createObjectURL(file);
-    img.title = idx % 2 === 0 ? "Front (detectado)" : "Back (detectado)";
-    preview.appendChild(img);
-  });
-
-  log.textContent = `${filesList.length} imágenes seleccionadas · Perfil: ${tcgSelect.value}`;
-}
-
-document.getElementById("startBtn").onclick = async () => {
-  if (filesList.length === 0) {
-    alert("Selecciona imágenes primero");
+  if (selectedFiles.length % 2 !== 0) {
+    alert(dict[lang].errorPairs);
     return;
   }
 
+  progressFill.style.width = "0%";
+  progressText.innerText = "0%";
+  downloadLink.style.display = "none";
+  log.innerText = dict[lang].uploading;
+
   const formData = new FormData();
-  filesList.forEach((f) => formData.append("files", f));
-
-  // Guardamos perfil elegido (futuro uso backend)
-  formData.append("tcg_profile", tcgSelect.value);
-
-  log.textContent = "Subiendo imágenes…";
+  selectedFiles.forEach((f) => formData.append("files", f));
 
   const res = await fetch("/upload", {
     method: "POST",
     body: formData,
   });
 
-  if (!res.ok) {
-    alert(await res.text());
-    return;
-  }
-
   const data = await res.json();
   sessionId = data.session_id;
 
-  log.textContent = "Procesando cartas…";
+  log.innerText = dict[lang].processing;
   pollProgress();
-  requestAnimationFrame(animateProgress);
-};
+});
 
+/*************************************************
+ * PROGRESS POLLING
+ *************************************************/
 async function pollProgress() {
-  if (!sessionId) return;
-
   const res = await fetch(`/progress/${sessionId}`);
   const data = await res.json();
 
   if (data.total > 0) {
-    targetProgress = Math.round((data.current / data.total) * 100);
+    const percent = Math.round((data.current / data.total) * 100);
+    progressFill.style.width = percent + "%";
+    progressText.innerText = percent + "%";
   }
 
   if (data.running) {
     setTimeout(pollProgress, 500);
   } else {
-    targetProgress = 100;
-    document.getElementById("download").href = `/download/${sessionId}`;
-    document.getElementById("download").style.display = "block";
-    log.textContent = "Proceso finalizado.";
+    progressFill.style.width = "100%";
+    progressText.innerText = "100%";
+    downloadLink.href = `/download/${sessionId}`;
+    downloadLink.style.display = "block";
+    log.innerText = "";
   }
 }
 
-function animateProgress() {
-  if (currentProgress < targetProgress) {
-    currentProgress += 1;
-    document.getElementById("progressFill").style.width = currentProgress + "%";
-    document.getElementById("progressText").textContent = currentProgress + "%";
-  }
-  requestAnimationFrame(animateProgress);
-}
+/*************************************************
+ * INIT
+ *************************************************/
+applyLang();
+applyTheme();
