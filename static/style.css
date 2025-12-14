@@ -4,123 +4,162 @@
 
 body {
   margin: 0;
-  background: radial-gradient(circle at top, #eef2ff, #f8fafc);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  color: #0f172a;
+  font-family: system-ui, sans-serif;
+  background: linear-gradient(120deg, #0f172a, #1e293b);
+  color: #e5e7eb;
+  overflow-x: hidden;
 }
 
-.app {
-  min-height: 100vh;
+/* Fondo con cartas flotantes */
+.background-cards::before,
+.background-cards::after {
+  content: "";
+  position: fixed;
+  inset: -20%;
+  background-image: url("https://i.imgur.com/8Km9tLL.png");
+  background-size: 180px;
+  opacity: 0.04;
+  animation: float 60s linear infinite;
+}
+
+.background-cards::after {
+  animation-direction: reverse;
+}
+
+@keyframes float {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-200px);
+  }
+}
+
+/* Binder Navbar */
+.binder {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 220px;
+  height: 100vh;
+  background: linear-gradient(180deg, #020617, #020617cc);
+  padding: 20px;
+}
+
+.binder-logo {
+  font-weight: 800;
+  font-size: 18px;
+  margin-bottom: 30px;
+}
+
+.binder ul {
+  list-style: none;
+  padding: 0;
+}
+
+.binder li {
+  padding: 12px;
+  margin-bottom: 8px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.binder li:hover,
+.binder li.active {
+  background: #6366f1;
+}
+
+/* Main */
+.content {
+  margin-left: 220px;
+  padding: 40px;
   display: flex;
-  align-items: center;
   justify-content: center;
 }
 
-.card {
+.tool-card {
+  max-width: 640px;
   width: 100%;
-  max-width: 620px;
-  background: white;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(20px);
   padding: 32px;
-  border-radius: 20px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08), 0 4px 10px rgba(0, 0, 0, 0.04);
+  border-radius: 24px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+  animation: fadeUp 0.6s ease;
 }
 
-header {
-  margin-bottom: 20px;
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-h1 {
-  margin: 0;
+header h1 {
+  margin: 0 0 8px 0;
 }
 
-.subtitle {
-  margin-top: 6px;
+header p {
   font-size: 14px;
-  color: #475569;
+  color: #94a3b8;
 }
 
 .tcg-selector {
-  margin-bottom: 20px;
+  margin: 20px 0;
 }
 
-.tcg-selector label {
-  display: block;
-  font-size: 13px;
-  margin-bottom: 6px;
-  color: #334155;
-}
-
-.tcg-selector select {
+select {
   width: 100%;
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #c7d2fe;
-  font-size: 14px;
-}
-
-.info ul {
-  padding-left: 18px;
-  font-size: 14px;
-  color: #334155;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
 }
 
 .dropzone {
-  margin-top: 20px;
-  padding: 32px;
-  border: 2px dashed #c7d2fe;
-  border-radius: 14px;
+  margin-top: 16px;
+  padding: 40px;
+  border: 2px dashed #6366f1;
+  border-radius: 18px;
   text-align: center;
   cursor: pointer;
-  transition: background 0.25s, border-color 0.25s;
-  position: relative;
+  transition: background 0.3s;
 }
 
-.dropzone span {
-  font-size: 13px;
-  color: #64748b;
-}
-
-.dropzone.dragover {
-  background: #eef2ff;
-  border-color: #6366f1;
+.dropzone:hover {
+  background: rgba(99, 102, 241, 0.15);
 }
 
 .dropzone input {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  cursor: pointer;
+  display: none;
 }
 
 .preview {
-  margin-top: 20px;
+  margin-top: 16px;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 10px;
 }
 
 .preview img {
   width: 100%;
   border-radius: 10px;
-  object-fit: cover;
-  border: 1px solid #e5e7eb;
 }
 
 button {
-  width: 100%;
   margin-top: 24px;
+  width: 100%;
   padding: 14px;
   font-size: 16px;
-  font-weight: 600;
-  background: linear-gradient(90deg, #4f46e5, #6366f1);
-  color: white;
+  font-weight: 700;
+  background: linear-gradient(90deg, #22d3ee, #6366f1);
   border: none;
-  border-radius: 10px;
+  border-radius: 14px;
   cursor: pointer;
-}
-
-button:hover {
-  opacity: 0.95;
 }
 
 .progress-wrapper {
@@ -133,7 +172,7 @@ button:hover {
 .progress-bar {
   flex: 1;
   height: 10px;
-  background: #e5e7eb;
+  background: #1e293b;
   border-radius: 999px;
   overflow: hidden;
 }
@@ -145,22 +184,9 @@ button:hover {
   transition: width 0.4s ease;
 }
 
-#progressText {
-  font-size: 13px;
-  width: 40px;
-  text-align: right;
-}
-
-.download {
-  display: block;
-  margin-top: 22px;
+footer {
   text-align: center;
-  font-weight: 600;
-  color: #2563eb;
-}
-
-.log {
-  margin-top: 16px;
-  font-size: 13px;
-  color: #475569;
+  padding: 20px;
+  font-size: 12px;
+  color: #94a3b8;
 }

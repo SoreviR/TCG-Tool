@@ -2,65 +2,70 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <title>TCG Image Tool</title>
+    <title>TCG Binder Tool</title>
     <link rel="stylesheet" href="/static/style.css" />
   </head>
   <body>
-    <div class="app">
-      <div class="card">
+    <div class="background-cards"></div>
+
+    <nav class="binder">
+      <div class="binder-logo">TCG Binder</div>
+      <ul>
+        <li class="active">Procesar</li>
+        <li>Cómo funciona</li>
+        <li>Perfil TCG</li>
+        <li>Acerca</li>
+      </ul>
+    </nav>
+
+    <main class="content">
+      <section class="tool-card">
         <header>
-          <h1>TCG Image Tool</h1>
-          <p class="subtitle">
-            Prepara imágenes profesionales para Cardmarket en segundos.
+          <h1>Preparar cartas para Cardmarket</h1>
+          <p>
+            Sube tus fotos, nosotros hacemos el resto.<br />
+            Diseñado para coleccionistas.
           </p>
         </header>
 
-        <section class="tcg-selector">
-          <label for="tcg">Tipo de cartas</label>
+        <div class="tcg-selector">
+          <label>Tipo de cartas</label>
           <select id="tcg">
-            <option value="generic">Genérico (automático)</option>
+            <option value="generic">Automático</option>
             <option value="pokemon">Pokémon</option>
             <option value="mtg">Magic: The Gathering</option>
             <option value="yugioh">Yu-Gi-Oh!</option>
-            <option value="onepiece">One Piece</option>
           </select>
-        </section>
+        </div>
 
-        <section class="info">
-          <ul>
-            <li>📸 Imágenes en pares (front + back)</li>
-            <li>✂️ Recorte automático (~5mm)</li>
-            <li>🧠 Detección automática del front</li>
-            <li>📦 Máx. 10 cartas por proceso</li>
-          </ul>
-        </section>
-
-        <section id="dropzone" class="dropzone">
+        <div id="dropzone" class="dropzone">
           <p>
-            Arrastra y suelta las imágenes aquí<br />
-            <span>o haz clic para seleccionarlas</span>
+            Arrastra aquí tus imágenes<br />
+            <span>Pares: Front + Back</span>
           </p>
           <input type="file" id="files" multiple accept="image/*" />
-        </section>
+        </div>
 
-        <section id="preview" class="preview"></section>
+        <div id="preview" class="preview"></div>
 
         <button id="startBtn">Procesar cartas</button>
 
-        <section class="progress-wrapper">
+        <div class="progress-wrapper">
           <div class="progress-bar">
             <div id="progressFill"></div>
           </div>
           <span id="progressText">0%</span>
-        </section>
+        </div>
 
         <a id="download" class="download" style="display: none">
-          Descargar resultados (ZIP)
+          Descargar imágenes
         </a>
 
         <div id="log" class="log"></div>
-      </div>
-    </div>
+      </section>
+    </main>
+
+    <footer>Hecho para coleccionistas · TCG Binder Tool</footer>
 
     <script src="/static/app.js"></script>
   </body>
