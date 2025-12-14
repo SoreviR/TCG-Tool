@@ -7,6 +7,7 @@ const dropzone = document.getElementById("dropzone");
 const fileInput = document.getElementById("files");
 const preview = document.getElementById("preview");
 const log = document.getElementById("log");
+const tcgSelect = document.getElementById("tcg");
 
 dropzone.addEventListener("dragover", (e) => {
   e.preventDefault();
@@ -32,21 +33,19 @@ function addFiles(files) {
     if (!file.type.startsWith("image/")) continue;
     filesList.push(file);
   }
-
   renderPreview();
 }
 
 function renderPreview() {
   preview.innerHTML = "";
-
   filesList.forEach((file, idx) => {
     const img = document.createElement("img");
     img.src = URL.createObjectURL(file);
-    img.title = idx % 2 === 0 ? "Front" : "Back";
+    img.title = idx % 2 === 0 ? "Front (detectado)" : "Back (detectado)";
     preview.appendChild(img);
   });
 
-  log.textContent = `${filesList.length} imágenes seleccionadas`;
+  log.textContent = `${filesList.length} imágenes seleccionadas · Perfil: ${tcgSelect.value}`;
 }
 
 document.getElementById("startBtn").onclick = async () => {
@@ -57,6 +56,9 @@ document.getElementById("startBtn").onclick = async () => {
 
   const formData = new FormData();
   filesList.forEach((f) => formData.append("files", f));
+
+  // Guardamos perfil elegido (futuro uso backend)
+  formData.append("tcg_profile", tcgSelect.value);
 
   log.textContent = "Subiendo imágenes…";
 

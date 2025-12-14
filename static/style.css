@@ -4,8 +4,9 @@
 
 body {
   margin: 0;
-  background: linear-gradient(135deg, #eef2ff, #f8fafc);
+  background: radial-gradient(circle at top, #eef2ff, #f8fafc);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  color: #0f172a;
 }
 
 .app {
@@ -16,38 +17,67 @@ body {
 }
 
 .card {
-  background: white;
   width: 100%;
-  max-width: 560px;
-  padding: 30px;
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  max-width: 620px;
+  background: white;
+  padding: 32px;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08), 0 4px 10px rgba(0, 0, 0, 0.04);
+}
+
+header {
+  margin-bottom: 20px;
 }
 
 h1 {
-  margin-top: 0;
+  margin: 0;
 }
 
 .subtitle {
+  margin-top: 6px;
+  font-size: 14px;
   color: #475569;
+}
+
+.tcg-selector {
+  margin-bottom: 20px;
+}
+
+.tcg-selector label {
+  display: block;
+  font-size: 13px;
+  margin-bottom: 6px;
+  color: #334155;
+}
+
+.tcg-selector select {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #c7d2fe;
   font-size: 14px;
 }
 
-.info {
-  padding-left: 20px;
+.info ul {
+  padding-left: 18px;
   font-size: 14px;
   color: #334155;
 }
 
 .dropzone {
   margin-top: 20px;
-  padding: 30px;
+  padding: 32px;
   border: 2px dashed #c7d2fe;
-  border-radius: 12px;
+  border-radius: 14px;
   text-align: center;
   cursor: pointer;
-  transition: background 0.2s, border-color 0.2s;
+  transition: background 0.25s, border-color 0.25s;
   position: relative;
+}
+
+.dropzone span {
+  font-size: 13px;
+  color: #64748b;
 }
 
 .dropzone.dragover {
@@ -65,31 +95,32 @@ h1 {
 .preview {
   margin-top: 20px;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap: 12px;
 }
 
 .preview img {
   width: 100%;
-  border-radius: 8px;
+  border-radius: 10px;
   object-fit: cover;
   border: 1px solid #e5e7eb;
 }
 
 button {
   width: 100%;
-  margin-top: 20px;
-  padding: 12px;
+  margin-top: 24px;
+  padding: 14px;
   font-size: 16px;
-  background: #4f46e5;
+  font-weight: 600;
+  background: linear-gradient(90deg, #4f46e5, #6366f1);
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
 }
 
 button:hover {
-  background: #4338ca;
+  opacity: 0.95;
 }
 
 .progress-wrapper {
@@ -110,26 +141,26 @@ button:hover {
 #progressFill {
   height: 100%;
   width: 0%;
-  background: linear-gradient(90deg, #6366f1, #22d3ee);
+  background: linear-gradient(90deg, #22d3ee, #6366f1);
   transition: width 0.4s ease;
 }
 
 #progressText {
-  font-size: 14px;
+  font-size: 13px;
   width: 40px;
   text-align: right;
 }
 
 .download {
   display: block;
-  margin-top: 20px;
+  margin-top: 22px;
   text-align: center;
-  font-weight: bold;
+  font-weight: 600;
   color: #2563eb;
 }
 
 .log {
-  margin-top: 15px;
+  margin-top: 16px;
   font-size: 13px;
   color: #475569;
 }

@@ -8,36 +8,51 @@
   <body>
     <div class="app">
       <div class="card">
-        <h1>TCG Image Tool</h1>
-        <p class="subtitle">
-          Prepara imágenes de cartas listas para Cardmarket.
-        </p>
+        <header>
+          <h1>TCG Image Tool</h1>
+          <p class="subtitle">
+            Prepara imágenes profesionales para Cardmarket en segundos.
+          </p>
+        </header>
 
-        <ul class="info">
-          <li>📸 Imágenes en pares (front + back)</li>
-          <li>✂️ Recorte automático (~5mm)</li>
-          <li>🖼️ Front siempre a la izquierda</li>
-          <li>📦 Máx. 10 cartas por proceso</li>
-        </ul>
+        <section class="tcg-selector">
+          <label for="tcg">Tipo de cartas</label>
+          <select id="tcg">
+            <option value="generic">Genérico (automático)</option>
+            <option value="pokemon">Pokémon</option>
+            <option value="mtg">Magic: The Gathering</option>
+            <option value="yugioh">Yu-Gi-Oh!</option>
+            <option value="onepiece">One Piece</option>
+          </select>
+        </section>
 
-        <div id="dropzone" class="dropzone">
+        <section class="info">
+          <ul>
+            <li>📸 Imágenes en pares (front + back)</li>
+            <li>✂️ Recorte automático (~5mm)</li>
+            <li>🧠 Detección automática del front</li>
+            <li>📦 Máx. 10 cartas por proceso</li>
+          </ul>
+        </section>
+
+        <section id="dropzone" class="dropzone">
           <p>
-            Arrastra y suelta las imágenes aquí<br />o haz clic para
-            seleccionarlas
+            Arrastra y suelta las imágenes aquí<br />
+            <span>o haz clic para seleccionarlas</span>
           </p>
           <input type="file" id="files" multiple accept="image/*" />
-        </div>
+        </section>
 
-        <div id="preview" class="preview"></div>
+        <section id="preview" class="preview"></section>
 
         <button id="startBtn">Procesar cartas</button>
 
-        <div class="progress-wrapper">
+        <section class="progress-wrapper">
           <div class="progress-bar">
             <div id="progressFill"></div>
           </div>
           <span id="progressText">0%</span>
-        </div>
+        </section>
 
         <a id="download" class="download" style="display: none">
           Descargar resultados (ZIP)
