@@ -61,49 +61,52 @@ body {
   outline: 2px solid var(--primary);
 }
 
-/* Book menu icon styles */
-.icon-book {
-  width: 28px;
-  height: 28px;
-  display: block;
-  transition: transform 320ms cubic-bezier(0.2, 0.9, 0.3, 1), opacity 320ms;
+/* Hamburger -> X icon */
+.hamburger {
+  width: 24px;
+  height: 18px;
+  display: inline-block;
+  position: relative;
 }
-.icon-closed .cover {
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2;
+.hamburger .bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: currentColor;
+  color: var(--text);
+  border-radius: 3px;
+  transition: transform 300ms cubic-bezier(0.2, 0.9, 0.3, 1), opacity 220ms;
+  transform-origin: center;
 }
-.icon-closed .spine {
-  fill: var(--primary);
+.hamburger .bar1 {
+  top: 0;
+}
+.hamburger .bar2 {
+  top: 50%;
+  transform: translateY(-50%);
+}
+.hamburger .bar3 {
+  bottom: 0;
 }
 
-/* Open book appearance (hidden by default) */
-.icon-open {
+/* Open state: morph into X */
+.menu-toggle.open .bar1 {
+  top: 50%;
+  transform: translateY(-50%) rotate(45deg);
+}
+.menu-toggle.open .bar2 {
   opacity: 0;
-  transform: translateY(6px) scale(0.96);
+  transform: scaleX(0);
 }
-.icon-open .page-left,
-.icon-open .page-right {
-  fill: currentColor;
-  opacity: 0.9;
-}
-.icon-open .spine-open {
-  fill: var(--primary);
+.menu-toggle.open .bar3 {
+  bottom: 50%;
+  transform: translateY(50%) rotate(-45deg);
 }
 
-/* Toggle state: hide closed, show open */
-.menu-toggle.open .icon-closed {
-  opacity: 0;
-  transform: translateY(-6px) scale(0.96);
-}
-.menu-toggle.open .icon-open {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-}
-
-/* Ensure button remains visible and accessible */
+/* keep button visible and interactive */
 .menu-toggle {
-  opacity: 1;
+  z-index: 1200;
   pointer-events: auto;
 }
 
