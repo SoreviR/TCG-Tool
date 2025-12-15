@@ -7,17 +7,48 @@
   </head>
   <body>
     <!-- BOTÓN MENU (Animated Hamburger) -->
-    <button id="menuToggle" class="menu-toggle" aria-label="Open menu">
-      <span class="bar bar1"></span>
-      <span class="bar bar2"></span>
-      <span class="bar bar3"></span>
+    <button
+      id="menuToggle"
+      class="menu-toggle"
+      aria-label="Open menu"
+      aria-expanded="false"
+      type="button"
+    >
+      <!-- Closed book -->
+      <svg
+        class="icon-book icon-closed"
+        viewBox="0 0 64 64"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <rect x="10" y="12" width="36" height="40" rx="3" class="cover" />
+        <rect x="8" y="12" width="8" height="40" rx="2" class="spine" />
+      </svg>
+
+      <!-- Open book -->
+      <svg
+        class="icon-book icon-open"
+        viewBox="0 0 64 64"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <path class="page-left" d="M8 12 C20 18, 28 46, 32 52 L32 12 Z" />
+        <path class="page-right" d="M56 12 C44 18, 36 46, 32 52 L32 12 Z" />
+        <rect x="28" y="22" width="8" height="20" class="spine-open" rx="1" />
+      </svg>
     </button>
 
     <!-- NAVBAR -->
     <nav id="navbar" class="navbar">
       <h2>TCG Tool</h2>
-      <button id="langBtn">ES</button>
-      <button id="themeBtn">☀️</button>
+      <div class="navbar-actions">
+        <button id="langBtn" class="square-btn" aria-label="Toggle language">
+          ES
+        </button>
+        <button id="themeBtn" class="square-btn" aria-label="Toggle theme">
+          ☀️
+        </button>
+      </div>
     </nav>
 
     <!-- CONTENIDO -->

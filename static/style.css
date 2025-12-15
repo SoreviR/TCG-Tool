@@ -29,48 +29,82 @@ body {
 
 .menu-toggle {
   position: fixed;
-  top: 24px;
-  left: 24px;
+  top: 18px;
+  left: 18px;
+  /* moved higher than navbar so it's always clickable */
   z-index: 1200;
-  width: 44px;
-  height: 44px;
-  background: var(--glass);
-  border: none;
-  border-radius: 50%;
-  box-shadow: var(--shadow);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  backdrop-filter: blur(var(--blur));
+  transition: transform 200ms ease, opacity 200ms ease;
   cursor: pointer;
-  transition: background 0.2s, box-shadow 0.2s,
-    left 0.35s cubic-bezier(0.77, 0, 0.18, 1), opacity 0.2s;
-  left: 24px;
-  /* Only .menu-toggle.open should move/fade the button */
 }
-.menu-toggle:hover {
-  background: var(--primary);
-  box-shadow: 0 4px 16px 0 rgba(99, 102, 241, 0.25);
+
+.menu-toggle.open {
+  opacity: 0.95;
+  pointer-events: auto;
 }
-.menu-toggle .bar {
+
+/* smaller screens: a smaller shift so it stays in viewport */
+@media (max-width: 480px) {
+  .menu-toggle.open {
+    transform: translateX(220px) translateY(6px);
+  }
+}
+
+.menu-toggle:focus {
+  outline: 2px solid var(--primary);
+}
+
+/* Book menu icon styles */
+.icon-book {
+  width: 28px;
+  height: 28px;
   display: block;
-  width: 24px;
-  height: 3px;
-  margin: 4px auto;
-  background: var(--text);
-  border-radius: 2px;
-  transition: 0.3s;
+  transition: transform 320ms cubic-bezier(0.2, 0.9, 0.3, 1), opacity 320ms;
 }
-.menu-toggle.open .bar1 {
-  left: 260px;
+.icon-closed .cover {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+}
+.icon-closed .spine {
+  fill: var(--primary);
+}
+
+/* Open book appearance (hidden by default) */
+.icon-open {
   opacity: 0;
-  pointer-events: none;
-  transform: translateY(7px) rotate(45deg);
+  transform: translateY(6px) scale(0.96);
 }
-.menu-toggle.open .bar2 {
+.icon-open .page-left,
+.icon-open .page-right {
+  fill: currentColor;
+  opacity: 0.9;
+}
+.icon-open .spine-open {
+  fill: var(--primary);
+}
+
+/* Toggle state: hide closed, show open */
+.menu-toggle.open .icon-closed {
   opacity: 0;
+  transform: translateY(-6px) scale(0.96);
 }
-.menu-toggle.open .bar3 {
-  transform: translateY(-7px) rotate(-45deg);
+.menu-toggle.open .icon-open {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* Ensure button remains visible and accessible */
+.menu-toggle {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .navbar {
@@ -90,6 +124,8 @@ body {
   border-bottom-right-radius: 24px;
   display: flex;
   flex-direction: column;
+  box-sizing: border-box;
+  overflow-y: auto;
   gap: 16px;
 }
 
@@ -97,23 +133,38 @@ body {
   left: 0;
 }
 
-.navbar button {
+.navbar-actions {
+  margin-top: auto;
+  display: flex;
+  gap: 12px;
+  align-self: self-end;
+  justify-content: center;
+  padding-bottom: 12px;
+}
+
+.square-btn {
   display: block;
-  margin-top: 15px;
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: var(--text);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  font-weight: 700;
+  transition: background 0.18s, transform 0.12s;
+  margin-top: 0;
+}
+
+.square-btn:hover {
   background: var(--primary);
   color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 10px 18px;
-  font-size: 1rem;
-  cursor: pointer;
-  box-shadow: 0 2px 8px 0 rgba(99, 102, 241, 0.1);
-  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  transform: translateY(-2px);
 }
-.navbar button:hover {
-  background: #fff;
-  color: var(--primary);
-  box-shadow: 0 4px 16px 0 rgba(99, 102, 241, 0.15);
+.square-btn:focus {
+  outline: 2px solid var(--primary);
 }
 
 /* ===== PAGE ===== */

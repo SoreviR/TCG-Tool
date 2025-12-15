@@ -43,8 +43,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const menuToggle = document.getElementById("menuToggle");
   menuToggle.onclick = () => {
-    navbar.classList.toggle("open");
-    menuToggle.classList.toggle("open");
+    const isOpen = navbar.classList.toggle("open");
+    menuToggle.classList.toggle("open", isOpen);
+    menuToggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+    menuToggle.setAttribute("aria-label", isOpen ? "Close menu" : "Open menu");
   };
 
   langBtn.onclick = () => {
