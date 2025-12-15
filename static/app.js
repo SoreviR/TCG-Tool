@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
     },
   };
 
-  let lang = localStorage.getItem("lang") || "es";
+  let lang = localStorage.getItem("lang") || "en";
   let theme = localStorage.getItem("theme") || "dark";
 
   const navbar = document.getElementById("navbar");
