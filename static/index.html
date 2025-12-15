@@ -3,42 +3,12 @@
   <head>
     <meta charset="UTF-8" />
     <title>TCG Image Tool</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="/static/style.css" />
   </head>
-  <!-- PEGAR ANTES DE </body> -->
-
-  <button id="feedbackBtn" class="feedback-btn">💬</button>
-
-  <div id="feedbackModal" class="modal">
-    <div class="modal-content">
-      <h3 data-i18n="feedback_title">Feedback</h3>
-
-      <textarea id="fbMessage" placeholder="Your feedback..."></textarea>
-
-      <input id="fbEmail" type="email" placeholder="Email (optional)" />
-
-      <div id="fbStatus" class="feedback-status"></div>
-
-      <div class="modal-actions">
-        <button id="sendFeedback" class="primary-btn" data-i18n="send">
-          Send
-        </button>
-        <button id="closeFeedback" class="secondary-btn">Cancel</button>
-      </div>
-    </div>
-  </div>
-
   <body>
     <!-- BOTÓN MENU -->
-    <button
-      id="menuToggle"
-      class="menu-toggle"
-      aria-label="Open menu"
-      aria-expanded="false"
-      type="button"
-    >
-      <span class="hamburger" aria-hidden="true">
+    <button id="menuToggle" class="menu-toggle" type="button">
+      <span class="hamburger">
         <span class="bar bar1"></span>
         <span class="bar bar2"></span>
         <span class="bar bar3"></span>
@@ -54,15 +24,11 @@
       </div>
     </nav>
 
-    <!-- CONTENIDO -->
     <div class="page">
       <main class="content">
         <h1 data-i18n="title">TCG Image Processor</h1>
 
-        <p data-i18n="desc">
-          Upload card images in pairs (front/back). A 5mm border will be
-          cropped.
-        </p>
+        <p data-i18n="desc">Upload card images in pairs (front/back).</p>
 
         <div id="dropzone" class="dropzone">
           <span data-i18n="drop">Drag & drop images or click here</span>
@@ -71,12 +37,8 @@
 
         <div id="preview" class="preview"></div>
 
-        <!-- PROGRESS -->
-        <div class="progress-wrapper">
-          <div class="progress-container">
-            <div id="progressBar"></div>
-          </div>
-          <div id="progressText" class="progress-text">0%</div>
+        <div class="progress-container">
+          <div id="progressBar"></div>
         </div>
 
         <div class="actions">
@@ -86,15 +48,38 @@
           <button id="resetBtn" class="secondary-btn">Reset</button>
         </div>
 
-        <a
-          id="download"
-          class="download-link"
-          style="display: none"
-          data-i18n="download"
-        >
+        <a id="download" class="download-link" style="display: none">
           Download
         </a>
       </main>
+    </div>
+
+    <!-- FEEDBACK BUTTON -->
+    <button id="feedbackBtn" class="feedback-btn">Feedback</button>
+
+    <!-- FEEDBACK MODAL -->
+    <div id="feedbackModal" class="modal">
+      <div class="modal-content">
+        <h3 data-i18n="feedback_title">Feedback</h3>
+
+        <select id="fbCategory">
+          <option value="">Select category</option>
+          <option value="bug">Bug</option>
+          <option value="idea">Idea / Feature</option>
+          <option value="general">General</option>
+        </select>
+
+        <textarea id="fbMessage" placeholder="Your feedback..."></textarea>
+
+        <input id="fbEmail" type="email" placeholder="Email (optional)" />
+
+        <div id="fbStatus" class="feedback-status"></div>
+
+        <div class="modal-actions">
+          <button id="sendFeedback" class="primary-btn">Send</button>
+          <button id="closeFeedback" class="secondary-btn">Cancel</button>
+        </div>
+      </div>
     </div>
 
     <script src="/static/app.js" defer></script>

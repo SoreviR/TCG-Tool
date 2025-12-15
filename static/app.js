@@ -149,10 +149,13 @@ document.addEventListener("DOMContentLoaded", () => {
   sendFb.onclick = async () => {
     const message = document.getElementById("fbMessage").value.trim();
     const email = document.getElementById("fbEmail").value.trim();
+    const category = document.getElementById("fbCategory").value;
 
-    if (!message) {
+    if (!category || !message) {
       fbStatus.textContent =
-        lang === "es" ? "Escribe un mensaje." : "Please write a message.";
+        lang === "es"
+          ? "Selecciona categoría y escribe un mensaje."
+          : "Select category and write a message.";
       fbStatus.className = "feedback-status error";
       return;
     }
@@ -162,18 +165,17 @@ document.addEventListener("DOMContentLoaded", () => {
     fbStatus.className = "feedback-status loading";
 
     try {
-      const res = await fetch("/feedback", {
+      await fetch("/feedback", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          category,
           message,
           email,
           language: lang,
           theme,
         }),
       });
-
-      if (!res.ok) throw new Error("Network error");
 
       fbStatus.textContent =
         lang === "es"
@@ -183,15 +185,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
       document.getElementById("fbMessage").value = "";
       document.getElementById("fbEmail").value = "";
+      document.getElementById("fbCategory").value = "";
 
-      setTimeout(() => {
-        fbModal.style.display = "none";
-      }, 1500);
-    } catch (err) {
+      setTimeout(() => (fbModal.style.display = "none"), 1500);
+    } catch {
       fbStatus.textContent =
-        lang === "es"
-          ? "Error al enviar. Intenta nuevamente."
-          : "Error sending feedback. Please try again.";
+        lang === "es" ? "Error al enviar." : "Error sending feedback.";
       fbStatus.className = "feedback-status error";
     } finally {
       sendFb.disabled = false;
