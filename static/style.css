@@ -19,19 +19,17 @@ body.light {
 body {
   margin: 0;
   font-family: "Segoe UI", system-ui, sans-serif;
-  background: var(--bg);
+  background: linear-gradient(135deg, var(--bg) 60%, var(--primary) 100%);
   color: var(--text);
   min-height: 100vh;
-  background: linear-gradient(135deg, var(--bg) 60%, var(--primary) 100%);
 }
 
 /* ===== NAVBAR ===== */
 
 .menu-toggle {
   position: fixed;
-  top: 18px;
-  left: 18px;
-  /* moved higher than navbar so it's always clickable */
+  top: 16px;
+  left: 16px;
   z-index: 1200;
   width: 48px;
   height: 48px;
@@ -41,27 +39,19 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 10px;
   backdrop-filter: blur(var(--blur));
-  transition: transform 200ms ease, opacity 200ms ease;
   cursor: pointer;
 }
 
-.menu-toggle.open {
-  opacity: 0.95;
-  pointer-events: auto;
+.menu-toggle.open .bar1 {
+  transform: translateY(7px) rotate(45deg);
+}
+.menu-toggle.open .bar2 {
+  opacity: 0;
+}
+.menu-toggle.open .bar3 {
+  transform: translateY(-7px) rotate(-45deg);
 }
 
-/* smaller screens: a smaller shift so it stays in viewport */
-@media (max-width: 480px) {
-  .menu-toggle.open {
-    transform: translateX(220px) translateY(6px);
-  }
-}
-
-.menu-toggle:focus {
-  outline: 2px solid var(--primary);
-}
-
-/* Hamburger -> X icon */
 .hamburger {
   width: 24px;
   height: 18px;
@@ -72,64 +62,41 @@ body {
   position: absolute;
   left: 0;
   right: 0;
+  width: 100%;
   height: 3px;
-  background: currentColor;
-  color: var(--text);
+  background: var(--text);
   border-radius: 3px;
-  transition: transform 300ms cubic-bezier(0.2, 0.9, 0.3, 1), opacity 220ms;
+  transition: 0.3s;
   transform-origin: center;
 }
-.hamburger .bar1 {
+.bar1 {
   top: 0;
 }
-.hamburger .bar2 {
-  top: 50%;
-  transform: translateY(-50%);
+.bar2 {
+  top: 7px;
 }
-.hamburger .bar3 {
+.bar3 {
   bottom: 0;
-}
-
-/* Open state: morph into X */
-.menu-toggle.open .bar1 {
-  top: 50%;
-  transform: translateY(-50%) rotate(45deg);
-}
-.menu-toggle.open .bar2 {
-  opacity: 0;
-  transform: scaleX(0);
-}
-.menu-toggle.open .bar3 {
-  bottom: 50%;
-  transform: translateY(50%) rotate(-45deg);
-}
-
-/* keep button visible and interactive */
-.menu-toggle {
-  z-index: 1200;
-  pointer-events: auto;
 }
 
 .navbar {
   position: fixed;
   top: 0;
-  left: -300px;
+  left: -290px;
   width: 260px;
   height: 100vh;
   background: var(--glass);
-  box-shadow: var(--shadow);
   backdrop-filter: blur(var(--blur));
-  -webkit-backdrop-filter: blur(var(--blur));
-  padding: 72px 24px 24px 24px;
-  transition: left 0.35s cubic-bezier(0.77, 0, 0.18, 1);
+  box-shadow: var(--shadow);
+  padding: 72px 20px 20px;
+  transition: left 0.3s ease;
   z-index: 1100;
-  border-top-right-radius: 24px;
-  border-bottom-right-radius: 24px;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
   overflow-y: auto;
-  gap: 16px;
+  border-top-right-radius: 16px;
+  border-bottom-right-radius: 16px;
 }
 
 .navbar.open {
@@ -140,34 +107,18 @@ body {
   margin-top: auto;
   display: flex;
   gap: 12px;
-  align-self: self-end;
-  justify-content: center;
-  padding-bottom: 12px;
+  justify-content: flex-end;
 }
 
 .square-btn {
-  display: block;
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   color: var(--text);
-  display: grid;
-  place-items: center;
+  font-weight: bold;
   cursor: pointer;
-  font-weight: 700;
-  transition: background 0.18s, transform 0.12s;
-  margin-top: 0;
-}
-
-.square-btn:hover {
-  background: var(--primary);
-  color: #fff;
-  transform: translateY(-2px);
-}
-.square-btn:focus {
-  outline: 2px solid var(--primary);
 }
 
 /* ===== PAGE ===== */
@@ -175,136 +126,130 @@ body {
 .page {
   display: flex;
   justify-content: center;
-  padding-top: 50px;
+  padding: 80px 16px 24px;
 }
 
 .content {
   width: 100%;
   max-width: 600px;
+  background: var(--glass);
+  backdrop-filter: blur(var(--blur));
+  border-radius: 24px;
+  box-shadow: var(--shadow);
   padding: 24px;
   display: flex;
   flex-direction: column;
-  gap: 28px;
-  background: var(--glass);
-  box-shadow: var(--shadow);
-  border-radius: 24px;
-  backdrop-filter: blur(var(--blur));
-  -webkit-backdrop-filter: blur(var(--blur));
-}
-
-.content .actions {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
+  gap: 24px;
 }
 
 /* ===== DROPZONE ===== */
 
 .dropzone {
-  border: 2.5px dashed var(--primary);
-  padding: 48px 24px;
+  border: 2px dashed var(--primary);
+  padding: 36px 20px;
   text-align: center;
-  cursor: pointer;
   border-radius: 16px;
-  background: rgba(99, 102, 241, 0.05);
-  font-size: 1.1rem;
-  font-weight: 500;
-  transition: background 0.2s, border-color 0.2s;
-}
-.dropzone:hover {
-  background: rgba(99, 102, 241, 0.1);
-  border-color: #fff;
+  cursor: pointer;
 }
 
 /* ===== PREVIEW ===== */
 
 .preview {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 12px;
 }
 
 .preview img {
   width: 100%;
   border-radius: 12px;
-  box-shadow: 0 2px 12px 0 rgba(99, 102, 241, 0.1);
-  background: #fff;
   object-fit: cover;
-  aspect-ratio: 2.5/3.5;
+  aspect-ratio: 2.5 / 3.5;
 }
 
 /* ===== PROGRESS ===== */
 
+.progress-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .progress-container {
-  background: #334155;
+  flex: 1;
   height: 12px;
+  background: #334155;
   border-radius: 6px;
   overflow: hidden;
-  box-shadow: 0 1px 6px 0 rgba(99, 102, 241, 0.1);
 }
 
 #progressBar {
   height: 100%;
   width: 0%;
-  background: linear-gradient(90deg, var(--primary) 60%, #a5b4fc 100%);
-  transition: width 0.3s cubic-bezier(0.77, 0, 0.18, 1);
+  background: linear-gradient(90deg, var(--primary), #a5b4fc);
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  min-width: 42px;
+  text-align: right;
+  font-weight: 600;
+  font-size: 0.9rem;
 }
 
 /* ===== BUTTONS ===== */
 
-.primary-btn {
-  padding: 14px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  border: none;
-  border-radius: 10px;
-  background: linear-gradient(90deg, var(--primary) 60%, #a5b4fc 100%);
-  color: #fff;
-  box-shadow: 0 2px 8px 0 rgba(99, 102, 241, 0.1);
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.1s;
-  letter-spacing: 0.5px;
+.actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
 }
+
+.primary-btn,
 .secondary-btn {
+  flex: 1;
   padding: 14px;
-  font-size: 1rem;
-  font-weight: 600;
-  border: none;
   border-radius: 10px;
-  background: transparent;
-  color: var(--text);
-  border: 1px solid rgba(229, 231, 235, 0.08);
-  box-shadow: none;
+  font-weight: 600;
   cursor: pointer;
-  transition: background 0.15s, transform 0.08s;
 }
-.secondary-btn:hover {
-  background: rgba(255, 255, 255, 0.03);
-  transform: translateY(-2px);
+
+.primary-btn {
+  border: none;
+  background: linear-gradient(90deg, var(--primary), #a5b4fc);
+  color: white;
 }
-.primary-btn:hover {
-  background: linear-gradient(90deg, #fff 0%, var(--primary) 100%);
-  color: var(--primary);
-  box-shadow: 0 4px 16px 0 rgba(99, 102, 241, 0.15);
-  transform: translateY(-2px) scale(1.03);
+
+.secondary-btn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--text);
 }
+
+/* ===== DOWNLOAD ===== */
 
 .download-link {
   text-align: center;
-  font-weight: bold;
-  display: block;
-  margin-top: 10px;
-  padding: 12px 0;
+  padding: 14px;
   border-radius: 10px;
   background: var(--primary);
-  color: #fff;
+  color: white;
   text-decoration: none;
-  box-shadow: 0 2px 8px 0 rgba(99, 102, 241, 0.1);
-  transition: background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.1s;
+  font-weight: bold;
 }
-.download-link:hover {
-  background: #fff;
-  color: var(--primary);
-  box-shadow: 0 4px 16px 0 rgba(99, 102, 241, 0.15);
-  transform: translateY(-2px) scale(1.03);
+
+/* ===== MOBILE ===== */
+
+@media (max-width: 480px) {
+  .content {
+    padding: 20px;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+
+  .progress-text {
+    font-size: 0.8rem;
+  }
 }

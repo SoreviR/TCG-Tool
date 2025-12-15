@@ -3,10 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <title>TCG Image Tool</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="/static/style.css" />
   </head>
   <body>
-    <!-- BOTÓN MENU (Animated Hamburger) -->
+    <!-- BOTÓN MENU -->
     <button
       id="menuToggle"
       class="menu-toggle"
@@ -25,12 +26,8 @@
     <nav id="navbar" class="navbar">
       <h2>TCG Tool</h2>
       <div class="navbar-actions">
-        <button id="langBtn" class="square-btn" aria-label="Toggle language">
-          ES
-        </button>
-        <button id="themeBtn" class="square-btn" aria-label="Toggle theme">
-          ☀️
-        </button>
+        <button id="langBtn" class="square-btn">ES</button>
+        <button id="themeBtn" class="square-btn">☀️</button>
       </div>
     </nav>
 
@@ -51,15 +48,18 @@
 
         <div id="preview" class="preview"></div>
 
-        <div class="progress-container">
-          <div id="progressBar"></div>
+        <!-- PROGRESS -->
+        <div class="progress-wrapper">
+          <div class="progress-container">
+            <div id="progressBar"></div>
+          </div>
+          <div id="progressText" class="progress-text">0%</div>
         </div>
 
         <div class="actions">
           <button id="processBtn" class="primary-btn" data-i18n="process">
             Process
           </button>
-
           <button id="resetBtn" class="secondary-btn">Reset</button>
         </div>
 

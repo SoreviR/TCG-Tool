@@ -23,6 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let theme = localStorage.getItem("theme") || "dark";
 
   const navbar = document.getElementById("navbar");
+  const menuToggle = document.getElementById("menuToggle");
   const langBtn = document.getElementById("langBtn");
   const themeBtn = document.getElementById("themeBtn");
 
@@ -41,12 +42,9 @@ document.addEventListener("DOMContentLoaded", () => {
   applyLang();
   applyTheme();
 
-  const menuToggle = document.getElementById("menuToggle");
   menuToggle.onclick = () => {
-    const isOpen = navbar.classList.toggle("open");
-    menuToggle.classList.toggle("open", isOpen);
-    menuToggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
-    menuToggle.setAttribute("aria-label", isOpen ? "Close menu" : "Open menu");
+    const open = navbar.classList.toggle("open");
+    menuToggle.classList.toggle("open", open);
   };
 
   langBtn.onclick = () => {
@@ -65,13 +63,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const input = document.getElementById("files");
   const preview = document.getElementById("preview");
   const progressBar = document.getElementById("progressBar");
+  const progressText = document.getElementById("progressText");
   const download = document.getElementById("download");
   const resetBtn = document.getElementById("resetBtn");
 
   dropzone.onclick = () => input.click();
-
   dropzone.ondragover = (e) => e.preventDefault();
-
   dropzone.ondrop = (e) => {
     e.preventDefault();
     files.push(...e.dataTransfer.files);
@@ -93,49 +90,42 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   document.getElementById("processBtn").onclick = async () => {
-    if (files.length === 0) return;
+    if (!files.length) return;
 
     const fd = new FormData();
     files.forEach((f) => fd.append("files", f));
 
-    const res = await fetch("/process", {
-      method: "POST",
-      body: fd,
-    });
-
+    const res = await fetch("/process", { method: "POST", body: fd });
     const data = await res.json();
     sessionId = data.session_id;
 
     pollProgress();
   };
 
-  // Reset button: clear selected files & UI state
   resetBtn.onclick = () => {
     files = [];
     sessionId = null;
     preview.innerHTML = "";
     input.value = "";
     progressBar.style.width = "0%";
+    progressText.textContent = "0%";
     download.style.display = "none";
   };
 
   async function pollProgress() {
-    if (!sessionId) return; // abort if reset or no session
-    try {
-      const res = await fetch(`/progress/${sessionId}`);
-      if (!res.ok) return;
-      const data = await res.json();
+    if (!sessionId) return;
 
-      progressBar.style.width = data.progress + "%";
+    const res = await fetch(`/progress/${sessionId}`);
+    const data = await res.json();
 
-      if (!data.done) {
-        setTimeout(pollProgress, 500);
-      } else {
-        download.href = `/download/${sessionId}`;
-        download.style.display = "block";
-      }
-    } catch (err) {
-      console.error("Progress polling failed:", err);
+    progressBar.style.width = data.progress + "%";
+    progressText.textContent = data.progress + "%";
+
+    if (!data.done) {
+      setTimeout(pollProgress, 500);
+    } else {
+      download.href = `/download/${sessionId}`;
+      download.style.display = "block";
     }
   }
 });
