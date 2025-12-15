@@ -6,6 +6,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="/static/style.css" />
   </head>
+  <!-- PEGAR ANTES DE </body> -->
+
+  <button id="feedbackBtn" class="feedback-btn">💬</button>
+
+  <div id="feedbackModal" class="modal">
+    <div class="modal-content">
+      <h3 data-i18n="feedback_title">Feedback</h3>
+
+      <textarea id="fbMessage" placeholder="Your feedback..."></textarea>
+
+      <input id="fbEmail" type="email" placeholder="Email (optional)" />
+
+      <div id="fbStatus" class="feedback-status"></div>
+
+      <div class="modal-actions">
+        <button id="sendFeedback" class="primary-btn" data-i18n="send">
+          Send
+        </button>
+        <button id="closeFeedback" class="secondary-btn">Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <body>
     <!-- BOTÓN MENU -->
     <button

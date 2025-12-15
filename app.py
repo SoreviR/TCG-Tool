@@ -1,12 +1,24 @@
 from fastapi import FastAPI, UploadFile, File
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-import os
-import shutil
-import uuid
-import zipfile
+from pydantic import BaseModel
+import os, shutil, uuid, zipfile, sqlite3, smtplib
+from email.message import EmailMessage
 import cv2
 import numpy as np
+
+# ===================== CONFIG =====================
+
+FEEDBACK_DB = "feedback.db"
+
+EMAIL_ENABLED = True
+SMTP_SERVER = "smtp.gmail.com"
+SMTP_PORT = 587
+SMTP_USER = "TU_EMAIL@gmail.com"
+SMTP_PASS = "TU_APP_PASSWORD"
+EMAIL_TO = "TU_EMAIL@gmail.com"
+
+# ==================================================
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -16,84 +28,55 @@ os.makedirs(BASE_SESSIONS, exist_ok=True)
 
 progress_state = {}
 
+# ===================== DB =====================
+
+def init_db():
+    with sqlite3.connect(FEEDBACK_DB) as conn:
+        conn.execute("""
+        CREATE TABLE IF NOT EXISTS feedback (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            email TEXT,
+            message TEXT,
+            language TEXT,
+            theme TEXT
+        )
+        """)
+
+init_db()
+
+# ===================== PAGES =====================
 
 @app.get("/", response_class=HTMLResponse)
 def index():
     with open("static/index.html", encoding="utf-8") as f:
         return f.read()
 
-
-# ---------- IMAGE UTILITIES ----------
+# ===================== IMAGE UTILS =====================
 
 def visual_score(img):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     edges = cv2.Canny(gray, 100, 200)
-    edge_score = np.sum(edges > 0)
-    lap_score = cv2.Laplacian(gray, cv2.CV_64F).var()
-
-    hist = cv2.calcHist([gray], [0], None, [256], [0, 256])
-    hist = hist / hist.sum()
-    entropy = -np.sum(hist * np.log2(hist + 1e-9))
-
-    return edge_score * 0.5 + lap_score * 10 + entropy * 1000
-
+    lap = cv2.Laplacian(gray, cv2.CV_64F).var()
+    return np.sum(edges > 0) * 0.5 + lap * 10
 
 def detect_front_back(img1, img2):
-    s1 = visual_score(img1)
-    s2 = visual_score(img2)
-    print(f"[Front Detection] img1={s1:.1f} | img2={s2:.1f}")
-    return (img1, img2) if s1 >= s2 else (img2, img1)
-
-
-def find_card_bbox(img):
-    """
-    Detects the card contour and returns bounding box
-    """
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    blur = cv2.GaussianBlur(gray, (5, 5), 0)
-    edges = cv2.Canny(blur, 50, 150)
-
-    contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    if not contours:
-        return None
-
-    largest = max(contours, key=cv2.contourArea)
-    x, y, w, h = cv2.boundingRect(largest)
-    return x, y, w, h
-
+    return (img1, img2) if visual_score(img1) >= visual_score(img2) else (img2, img1)
 
 def crop_with_margin(img):
-    # Always crop a 5mm frame from each edge
-    h_img, w_img = img.shape[:2]
-    margin_mm = 5
-    dpi = 300  # assumed DPI
-    mm_per_inch = 25.4
-    margin_px = int((margin_mm / mm_per_inch) * dpi)
-
-    x1 = margin_px
-    y1 = margin_px
-    x2 = w_img - margin_px
-    y2 = h_img - margin_px
-
-    # Ensure we don't crop beyond image bounds
-    if x2 <= x1 or y2 <= y1:
-        return img  # return original if crop is invalid
-    return img[y1:y2, x1:x2]
-
+    h, w = img.shape[:2]
+    margin_px = int((5 / 25.4) * 300)
+    return img[margin_px:h - margin_px, margin_px:w - margin_px]
 
 def combine_images(front, back):
     h = max(front.shape[0], back.shape[0])
 
     def pad(img):
-        return cv2.copyMakeBorder(
-            img, 0, h - img.shape[0], 0, 0,
-            cv2.BORDER_CONSTANT, value=[0, 0, 0]
-        )
-
+        return cv2.copyMakeBorder(img, 0, h - img.shape[0], 0, 0,
+                                  cv2.BORDER_CONSTANT, value=[0, 0, 0])
     return np.hstack((pad(front), pad(back)))
 
-
-# ---------- API ----------
+# ===================== API =====================
 
 @app.post("/process")
 async def process(files: list[UploadFile] = File(...)):
@@ -101,63 +84,79 @@ async def process(files: list[UploadFile] = File(...)):
     session_dir = os.path.join(BASE_SESSIONS, session_id)
     os.makedirs(session_dir, exist_ok=True)
 
-    total_pairs = len(files) // 2
-    progress_state[session_id] = {
-        "current": 0,
-        "total": total_pairs,
-        "done": False
-    }
+    progress_state[session_id] = {"current": 0, "total": len(files)//2, "done": False}
 
-    image_paths = []
-
-    for i, file in enumerate(files):
+    paths = []
+    for i, f in enumerate(files):
         path = os.path.join(session_dir, f"{i}.jpg")
-        with open(path, "wb") as f:
-            shutil.copyfileobj(file.file, f)
-        image_paths.append(path)
+        with open(path, "wb") as out:
+            shutil.copyfileobj(f.file, out)
+        paths.append(path)
 
     outputs = []
 
-    for i in range(0, len(image_paths), 2):
-        img1 = cv2.imread(image_paths[i])
-        img2 = cv2.imread(image_paths[i + 1])
+    for i in range(0, len(paths), 2):
+        img1 = cv2.imread(paths[i])
+        img2 = cv2.imread(paths[i+1])
 
         front, back = detect_front_back(img1, img2)
+        combined = combine_images(crop_with_margin(front), crop_with_margin(back))
 
-        # Remove bbox detection, just crop 5mm from each edge
-        front = crop_with_margin(front)
-        back = crop_with_margin(back)
-
-        combined = combine_images(front, back)
-
-        out_path = os.path.join(session_dir, f"card_{i // 2 + 1}.jpg")
-        cv2.imwrite(out_path, combined)
-        outputs.append(out_path)
+        out = os.path.join(session_dir, f"card_{i//2+1}.jpg")
+        cv2.imwrite(out, combined)
+        outputs.append(out)
 
         progress_state[session_id]["current"] += 1
 
     zip_path = os.path.join(session_dir, "cards.zip")
-    with zipfile.ZipFile(zip_path, "w") as zipf:
-        for img in outputs:
-            zipf.write(img, arcname=os.path.basename(img))
+    with zipfile.ZipFile(zip_path, "w") as z:
+        for f in outputs:
+            z.write(f, os.path.basename(f))
 
     progress_state[session_id]["done"] = True
     return {"session_id": session_id}
 
-
 @app.get("/progress/{session_id}")
 def progress(session_id: str):
-    state = progress_state.get(session_id)
-    if not state:
-        return {"progress": 0, "done": False}
-
-    percent = int((state["current"] / max(state["total"], 1)) * 100)
-    return {"progress": percent, "done": state["done"]}
-
+    s = progress_state.get(session_id, {})
+    pct = int((s.get("current", 0) / max(s.get("total", 1), 1)) * 100)
+    return {"progress": pct, "done": s.get("done", False)}
 
 @app.get("/download/{session_id}")
 def download(session_id: str):
-    zip_path = os.path.join(BASE_SESSIONS, session_id, "cards.zip")
-    if not os.path.exists(zip_path):
+    path = os.path.join(BASE_SESSIONS, session_id, "cards.zip")
+    if not os.path.exists(path):
         return JSONResponse({"detail": "Archivo no disponible"}, status_code=404)
-    return FileResponse(zip_path, filename="cards.zip")
+    return FileResponse(path, filename="cards.zip")
+
+# ===================== FEEDBACK =====================
+
+class Feedback(BaseModel):
+    message: str
+    email: str | None = None
+    language: str
+    theme: str
+
+@app.post("/feedback")
+def feedback(data: Feedback):
+    with sqlite3.connect(FEEDBACK_DB) as conn:
+        conn.execute(
+            "INSERT INTO feedback (email, message, language, theme) VALUES (?, ?, ?, ?)",
+            (data.email, data.message, data.language, data.theme)
+        )
+
+    if EMAIL_ENABLED:
+        msg = EmailMessage()
+        msg["Subject"] = "Nuevo Feedback - TCG Tool"
+        msg["From"] = SMTP_USER
+        msg["To"] = EMAIL_TO
+        msg.set_content(
+            f"Mensaje:\n{data.message}\n\nEmail: {data.email}\nIdioma: {data.language}\nTema: {data.theme}"
+        )
+
+        with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as s:
+            s.starttls()
+            s.login(SMTP_USER, SMTP_PASS)
+            s.send_message(msg)
+
+    return {"status": "ok"}

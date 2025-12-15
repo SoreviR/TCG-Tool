@@ -128,4 +128,73 @@ document.addEventListener("DOMContentLoaded", () => {
       download.style.display = "block";
     }
   }
+
+  // ===== FEEDBACK =====
+
+  const fbBtn = document.getElementById("feedbackBtn");
+  const fbModal = document.getElementById("feedbackModal");
+  const closeFb = document.getElementById("closeFeedback");
+  const sendFb = document.getElementById("sendFeedback");
+  const fbStatus = document.getElementById("fbStatus");
+
+  fbBtn.onclick = () => {
+    fbModal.style.display = "flex";
+    fbStatus.textContent = "";
+  };
+
+  closeFb.onclick = () => {
+    fbModal.style.display = "none";
+  };
+
+  sendFb.onclick = async () => {
+    const message = document.getElementById("fbMessage").value.trim();
+    const email = document.getElementById("fbEmail").value.trim();
+
+    if (!message) {
+      fbStatus.textContent =
+        lang === "es" ? "Escribe un mensaje." : "Please write a message.";
+      fbStatus.className = "feedback-status error";
+      return;
+    }
+
+    sendFb.disabled = true;
+    fbStatus.textContent = lang === "es" ? "Enviando..." : "Sending...";
+    fbStatus.className = "feedback-status loading";
+
+    try {
+      const res = await fetch("/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message,
+          email,
+          language: lang,
+          theme,
+        }),
+      });
+
+      if (!res.ok) throw new Error("Network error");
+
+      fbStatus.textContent =
+        lang === "es"
+          ? "¡Gracias por tu feedback!"
+          : "Thank you for your feedback!";
+      fbStatus.className = "feedback-status success";
+
+      document.getElementById("fbMessage").value = "";
+      document.getElementById("fbEmail").value = "";
+
+      setTimeout(() => {
+        fbModal.style.display = "none";
+      }, 1500);
+    } catch (err) {
+      fbStatus.textContent =
+        lang === "es"
+          ? "Error al enviar. Intenta nuevamente."
+          : "Error sending feedback. Please try again.";
+      fbStatus.className = "feedback-status error";
+    } finally {
+      sendFb.disabled = false;
+    }
+  };
 });
