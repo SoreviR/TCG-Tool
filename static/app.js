@@ -41,8 +41,10 @@ document.addEventListener("DOMContentLoaded", () => {
   applyLang();
   applyTheme();
 
-  document.getElementById("menuToggle").onclick = () => {
+  const menuToggle = document.getElementById("menuToggle");
+  menuToggle.onclick = () => {
     navbar.classList.toggle("open");
+    menuToggle.classList.toggle("open");
   };
 
   langBtn.onclick = () => {
