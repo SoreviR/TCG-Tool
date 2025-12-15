@@ -175,13 +175,13 @@ body {
 .page {
   display: flex;
   justify-content: center;
-  padding-top: 80px;
+  padding-top: 50px;
 }
 
 .content {
   width: 100%;
-  max-width: 720px;
-  padding: 32px 24px;
+  max-width: 600px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
   gap: 28px;
