@@ -66,6 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const preview = document.getElementById("preview");
   const progressBar = document.getElementById("progressBar");
   const download = document.getElementById("download");
+  const resetBtn = document.getElementById("resetBtn");
 
   dropzone.onclick = () => input.click();
 
@@ -108,17 +109,33 @@ document.addEventListener("DOMContentLoaded", () => {
     pollProgress();
   };
 
+  // Reset button: clear selected files & UI state
+  resetBtn.onclick = () => {
+    files = [];
+    sessionId = null;
+    preview.innerHTML = "";
+    input.value = "";
+    progressBar.style.width = "0%";
+    download.style.display = "none";
+  };
+
   async function pollProgress() {
-    const res = await fetch(`/progress/${sessionId}`);
-    const data = await res.json();
+    if (!sessionId) return; // abort if reset or no session
+    try {
+      const res = await fetch(`/progress/${sessionId}`);
+      if (!res.ok) return;
+      const data = await res.json();
 
-    progressBar.style.width = data.progress + "%";
+      progressBar.style.width = data.progress + "%";
 
-    if (!data.done) {
-      setTimeout(pollProgress, 500);
-    } else {
-      download.href = `/download/${sessionId}`;
-      download.style.display = "block";
+      if (!data.done) {
+        setTimeout(pollProgress, 500);
+      } else {
+        download.href = `/download/${sessionId}`;
+        download.style.display = "block";
+      }
+    } catch (err) {
+      console.error("Progress polling failed:", err);
     }
   }
 });

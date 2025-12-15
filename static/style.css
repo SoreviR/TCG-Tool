@@ -192,6 +192,12 @@ body {
   -webkit-backdrop-filter: blur(var(--blur));
 }
 
+.content .actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
 /* ===== DROPZONE ===== */
 
 .dropzone {
@@ -247,7 +253,7 @@ body {
 /* ===== BUTTONS ===== */
 
 .primary-btn {
-  padding: 14px 0;
+  padding: 14px;
   font-size: 1.1rem;
   font-weight: 600;
   border: none;
@@ -258,6 +264,23 @@ body {
   cursor: pointer;
   transition: background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.1s;
   letter-spacing: 0.5px;
+}
+.secondary-btn {
+  padding: 14px;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text);
+  border: 1px solid rgba(229, 231, 235, 0.08);
+  box-shadow: none;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.08s;
+}
+.secondary-btn:hover {
+  background: rgba(255, 255, 255, 0.03);
+  transform: translateY(-2px);
 }
 .primary-btn:hover {
   background: linear-gradient(90deg, #fff 0%, var(--primary) 100%);
