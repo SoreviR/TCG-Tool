@@ -42,8 +42,10 @@ body {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background 0.2s, box-shadow 0.2s;
-  outline: none;
+  transition: background 0.2s, box-shadow 0.2s,
+    left 0.35s cubic-bezier(0.77, 0, 0.18, 1), opacity 0.2s;
+  left: 24px;
+  /* Only .menu-toggle.open should move/fade the button */
 }
 .menu-toggle:hover {
   background: var(--primary);
@@ -59,6 +61,9 @@ body {
   transition: 0.3s;
 }
 .menu-toggle.open .bar1 {
+  left: 260px;
+  opacity: 0;
+  pointer-events: none;
   transform: translateY(7px) rotate(45deg);
 }
 .menu-toggle.open .bar2 {
@@ -71,14 +76,14 @@ body {
 .navbar {
   position: fixed;
   top: 0;
-  left: -260px;
+  left: -300px;
   width: 260px;
   height: 100vh;
   background: var(--glass);
   box-shadow: var(--shadow);
   backdrop-filter: blur(var(--blur));
   -webkit-backdrop-filter: blur(var(--blur));
-  padding: 32px 24px 24px 24px;
+  padding: 72px 24px 24px 24px;
   transition: left 0.35s cubic-bezier(0.77, 0, 0.18, 1);
   z-index: 1100;
   border-top-right-radius: 24px;
