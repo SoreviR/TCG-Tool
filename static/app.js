@@ -1,131 +1,120 @@
-const MAX_IMAGES = 20;
+document.addEventListener("DOMContentLoaded", () => {
+  let files = [];
+  let sessionId = null;
 
-let selectedFiles = [];
-let sessionId = null;
+  const dict = {
+    es: {
+      title: "Procesador de Cartas TCG",
+      desc: "Sube imágenes en pares (front/back). Se recortará un marco de 5mm.",
+      drop: "Arrastra imágenes o haz click aquí",
+      process: "Procesar",
+      download: "Descargar",
+    },
+    en: {
+      title: "TCG Image Processor",
+      desc: "Upload images in pairs (front/back). A 5mm border will be cropped.",
+      drop: "Drag & drop images or click here",
+      process: "Process",
+      download: "Download",
+    },
+  };
 
-let lang = localStorage.getItem("lang") || "es";
-let theme = localStorage.getItem("theme") || "dark";
+  let lang = localStorage.getItem("lang") || "es";
+  let theme = localStorage.getItem("theme") || "dark";
 
-/* I18N */
-const dict = {
-  es: {
-    title: "Procesador de Cartas TCG",
-    description:
-      "Sube imágenes en pares (front/back). Se recortará automáticamente un marco de 5mm.",
-    dropzone: "Arrastra imágenes aquí o haz click para seleccionarlas",
-    process: "Procesar cartas",
-    reset: "Resetear",
-    download: "Descargar imágenes",
-    nav_tool: "Herramienta",
-    nav_about: "Acerca de",
-  },
-  en: {
-    title: "TCG Card Processor",
-    description:
-      "Upload images in pairs (front/back). A 5mm border will be cropped automatically.",
-    dropzone: "Drag & drop images here or click to select",
-    process: "Process cards",
-    reset: "Reset",
-    download: "Download images",
-    nav_tool: "Tool",
-    nav_about: "About",
-  },
-};
+  const navbar = document.getElementById("navbar");
+  const langBtn = document.getElementById("langBtn");
+  const themeBtn = document.getElementById("themeBtn");
 
-function applyLang() {
-  document.querySelectorAll("[data-i18n]").forEach((el) => {
-    el.innerText = dict[lang][el.dataset.i18n];
-  });
-  document.getElementById("langToggle").innerText = lang.toUpperCase();
-  localStorage.setItem("lang", lang);
-}
+  function applyLang() {
+    document.querySelectorAll("[data-i18n]").forEach((el) => {
+      el.textContent = dict[lang][el.dataset.i18n];
+    });
+    langBtn.textContent = lang.toUpperCase();
+  }
 
-function applyTheme() {
-  document.body.classList.toggle("light", theme === "light");
-  document.getElementById("themeToggle").innerText =
-    theme === "light" ? "🌙" : "☀️";
-  localStorage.setItem("theme", theme);
-}
+  function applyTheme() {
+    document.body.classList.toggle("light", theme === "light");
+    themeBtn.textContent = theme === "light" ? "🌙" : "☀️";
+  }
 
-/* NAVBAR */
-const binder = document.getElementById("binder");
-document.getElementById("menuToggle").onclick = () => {
-  binder.classList.toggle("open");
-};
-
-document.getElementById("langToggle").onclick = () => {
-  lang = lang === "es" ? "en" : "es";
   applyLang();
-};
-
-document.getElementById("themeToggle").onclick = () => {
-  theme = theme === "dark" ? "light" : "dark";
   applyTheme();
-};
 
-/* FILE HANDLING */
-const preview = document.getElementById("preview");
-const fileInput = document.getElementById("files");
-const dropzone = document.getElementById("dropzone");
+  document.getElementById("menuToggle").onclick = () => {
+    navbar.classList.toggle("open");
+  };
 
-function updatePreview() {
-  preview.innerHTML = "";
-  selectedFiles.forEach((file) => {
-    const img = document.createElement("img");
-    img.src = URL.createObjectURL(file);
-    preview.appendChild(img);
-  });
-}
+  langBtn.onclick = () => {
+    lang = lang === "es" ? "en" : "es";
+    localStorage.setItem("lang", lang);
+    applyLang();
+  };
 
-function addFiles(files) {
-  for (let file of files) {
-    if (selectedFiles.length >= MAX_IMAGES) break;
-    selectedFiles.push(file);
+  themeBtn.onclick = () => {
+    theme = theme === "dark" ? "light" : "dark";
+    localStorage.setItem("theme", theme);
+    applyTheme();
+  };
+
+  const dropzone = document.getElementById("dropzone");
+  const input = document.getElementById("files");
+  const preview = document.getElementById("preview");
+  const progressBar = document.getElementById("progressBar");
+  const download = document.getElementById("download");
+
+  dropzone.onclick = () => input.click();
+
+  dropzone.ondragover = (e) => e.preventDefault();
+
+  dropzone.ondrop = (e) => {
+    e.preventDefault();
+    files.push(...e.dataTransfer.files);
+    renderPreview();
+  };
+
+  input.onchange = () => {
+    files.push(...input.files);
+    renderPreview();
+  };
+
+  function renderPreview() {
+    preview.innerHTML = "";
+    files.forEach((f) => {
+      const img = document.createElement("img");
+      img.src = URL.createObjectURL(f);
+      preview.appendChild(img);
+    });
   }
-  updatePreview();
-}
 
-dropzone.onclick = () => fileInput.click();
+  document.getElementById("processBtn").onclick = async () => {
+    if (files.length === 0) return;
 
-dropzone.ondrop = (e) => {
-  e.preventDefault();
-  addFiles(e.dataTransfer.files);
-};
+    const fd = new FormData();
+    files.forEach((f) => fd.append("files", f));
 
-dropzone.ondragover = (e) => e.preventDefault();
+    const res = await fetch("/process", {
+      method: "POST",
+      body: fd,
+    });
 
-fileInput.onchange = () => {
-  addFiles(fileInput.files);
-  fileInput.value = "";
-};
+    const data = await res.json();
+    sessionId = data.session_id;
 
-/* PROCESS */
-document.getElementById("startBtn").onclick = async () => {
-  if (selectedFiles.length < 2 || selectedFiles.length % 2 !== 0) {
-    alert("Please upload images in pairs.");
-    return;
+    pollProgress();
+  };
+
+  async function pollProgress() {
+    const res = await fetch(`/progress/${sessionId}`);
+    const data = await res.json();
+
+    progressBar.style.width = data.progress + "%";
+
+    if (!data.done) {
+      setTimeout(pollProgress, 500);
+    } else {
+      download.href = `/download/${sessionId}`;
+      download.style.display = "block";
+    }
   }
-
-  const formData = new FormData();
-  selectedFiles.forEach((f) => formData.append("files", f));
-
-  const res = await fetch("/process", { method: "POST", body: formData });
-  const data = await res.json();
-
-  sessionId = data.session_id;
-  const dl = document.getElementById("download");
-  dl.href = `/download/${sessionId}`;
-  dl.style.display = "block";
-};
-
-/* RESET */
-document.getElementById("resetBtn").onclick = () => {
-  selectedFiles = [];
-  sessionId = null;
-  preview.innerHTML = "";
-  document.getElementById("download").style.display = "none";
-};
-
-/* INIT */
-applyLang();
-applyTheme();
+});

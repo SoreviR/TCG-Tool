@@ -6,51 +6,52 @@
     <link rel="stylesheet" href="/static/style.css" />
   </head>
   <body>
+    <!-- BOTÓN MENU -->
     <button id="menuToggle" class="menu-toggle">☰</button>
 
-    <nav id="binder" class="binder">
-      <div class="binder-logo">TCG Tool</div>
-
-      <ul>
-        <li class="active" data-i18n="nav_tool">Tool</li>
-        <li data-i18n="nav_about">About</li>
-      </ul>
-
-      <div class="binder-controls">
-        <button id="langToggle">ES</button>
-        <button id="themeToggle">☀️</button>
-      </div>
+    <!-- NAVBAR -->
+    <nav id="navbar" class="navbar">
+      <h2>TCG Tool</h2>
+      <button id="langBtn">ES</button>
+      <button id="themeBtn">☀️</button>
     </nav>
 
-    <main class="content">
-      <div class="tool-card">
+    <!-- CONTENIDO -->
+    <div class="page">
+      <main class="content">
         <h1 data-i18n="title">TCG Image Processor</h1>
-        <p data-i18n="description">
-          Upload card photos in pairs (front/back). A 5mm border will be cropped
-          automatically.
+
+        <p data-i18n="desc">
+          Upload card images in pairs (front/back). A 5mm border will be
+          cropped.
         </p>
 
         <div id="dropzone" class="dropzone">
-          <p data-i18n="dropzone">Drag & drop images here or click to select</p>
+          <span data-i18n="drop">Drag & drop images or click here</span>
           <input type="file" id="files" multiple accept="image/*" hidden />
         </div>
 
         <div id="preview" class="preview"></div>
 
-        <button id="startBtn" data-i18n="process">Process cards</button>
-        <button id="resetBtn" class="reset" data-i18n="reset">Reset</button>
+        <div class="progress-container">
+          <div id="progressBar"></div>
+        </div>
+
+        <button id="processBtn" class="primary-btn" data-i18n="process">
+          Process
+        </button>
 
         <a
           id="download"
-          class="download"
+          class="download-link"
           style="display: none"
           data-i18n="download"
         >
-          Download results
+          Download
         </a>
-      </div>
-    </main>
+      </main>
+    </div>
 
-    <script src="/static/app.js"></script>
+    <script src="/static/app.js" defer></script>
   </body>
 </html>

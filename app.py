@@ -1,177 +1,159 @@
+from fastapi import FastAPI, UploadFile, File
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 import os
+import shutil
 import uuid
 import zipfile
-import shutil
-from typing import List
-
 import cv2
 import numpy as np
-from fastapi import FastAPI, UploadFile, HTTPException, BackgroundTasks
-from fastapi.responses import FileResponse
-from fastapi.staticfiles import StaticFiles
 
-# ==============================
-# CONFIGURACIÓN
-# ==============================
-
-MAX_IMAGES = 20  # 10 cartas
-SESSIONS_DIR = "sessions"
-
-os.makedirs(SESSIONS_DIR, exist_ok=True)
-
-app = FastAPI(title="TCG Image Tool")
-
-# ==============================
-# SERVIR UI
-# ==============================
-
+app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-@app.get("/")
+BASE_SESSIONS = "sessions"
+os.makedirs(BASE_SESSIONS, exist_ok=True)
+
+progress_state = {}
+
+
+@app.get("/", response_class=HTMLResponse)
 def index():
-    return FileResponse("static/index.html")
+    with open("static/index.html", encoding="utf-8") as f:
+        return f.read()
 
-# ==============================
-# PROGRESO
-# ==============================
 
-progress = {}
+# ---------- IMAGE UTILITIES ----------
 
-# ==============================
-# UTILIDADES DE IMAGEN
-# ==============================
+def visual_score(img):
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    edges = cv2.Canny(gray, 100, 200)
+    edge_score = np.sum(edges > 0)
+    lap_score = cv2.Laplacian(gray, cv2.CV_64F).var()
 
-def crop_5mm(img: np.ndarray) -> np.ndarray:
-    h, w = img.shape[:2]
-    mm_to_px = int(5 * 300 / 25.4)  # ~59px
-    return img[mm_to_px:h-mm_to_px, mm_to_px:w-mm_to_px]
+    hist = cv2.calcHist([gray], [0], None, [256], [0, 256])
+    hist = hist / hist.sum()
+    entropy = -np.sum(hist * np.log2(hist + 1e-9))
 
-def visual_complexity_score(img: np.ndarray) -> float:
+    return edge_score * 0.5 + lap_score * 10 + entropy * 1000
+
+
+def detect_front_back(img1, img2):
+    s1 = visual_score(img1)
+    s2 = visual_score(img2)
+    print(f"[Front Detection] img1={s1:.1f} | img2={s2:.1f}")
+    return (img1, img2) if s1 >= s2 else (img2, img1)
+
+
+def find_card_bbox(img):
     """
-    Calcula un score de complejidad visual.
-    Más alto = más probable que sea el FRONT.
+    Detects the card contour and returns bounding box
     """
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    gray = cv2.GaussianBlur(gray, (5, 5), 0)
-    edges = cv2.Canny(gray, 80, 160)
-    return np.sum(edges > 0)
+    blur = cv2.GaussianBlur(gray, (5, 5), 0)
+    edges = cv2.Canny(blur, 50, 150)
 
-def order_front_back(img1: np.ndarray, img2: np.ndarray):
-    score1 = visual_complexity_score(img1)
-    score2 = visual_complexity_score(img2)
+    contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    if not contours:
+        return None
 
-    if score1 >= score2:
-        return img1, img2
-    else:
-        return img2, img1
+    largest = max(contours, key=cv2.contourArea)
+    x, y, w, h = cv2.boundingRect(largest)
+    return x, y, w, h
 
-def join_front_back(front: np.ndarray, back: np.ndarray) -> np.ndarray:
+
+def crop_with_margin(img, bbox):
+    x, y, w, h = bbox
+    h_img, w_img = img.shape[:2]
+
+    margin = int(min(w, h) * 0.03)  # ≈5mm visual
+
+    x1 = max(x - margin, 0)
+    y1 = max(y - margin, 0)
+    x2 = min(x + w + margin, w_img)
+    y2 = min(y + h + margin, h_img)
+
+    return img[y1:y2, x1:x2]
+
+
+def combine_images(front, back):
     h = max(front.shape[0], back.shape[0])
 
-    def resize(img):
-        if img.shape[0] != h:
-            scale = h / img.shape[0]
-            return cv2.resize(
-                img,
-                (int(img.shape[1] * scale), h),
-                interpolation=cv2.INTER_AREA
-            )
-        return img
-
-    front = resize(front)
-    back = resize(back)
-
-    return np.hstack([front, back])
-
-# ==============================
-# PROCESAMIENTO
-# ==============================
-
-def process_images(session_id: str, filepaths: List[str]):
-    session_dir = os.path.join(SESSIONS_DIR, session_id)
-    output_dir = os.path.join(session_dir, "output")
-    os.makedirs(output_dir, exist_ok=True)
-
-    total_cards = len(filepaths) // 2
-    progress[session_id]["total"] = total_cards
-
-    for i in range(0, len(filepaths), 2):
-        img_a = cv2.imread(filepaths[i])
-        img_b = cv2.imread(filepaths[i + 1])
-
-        img_a = crop_5mm(img_a)
-        img_b = crop_5mm(img_b)
-
-        front, back = order_front_back(img_a, img_b)
-        combined = join_front_back(front, back)
-
-        out_path = os.path.join(output_dir, f"card_{i//2 + 1}.jpg")
-        cv2.imwrite(out_path, combined)
-
-        progress[session_id]["current"] += 1
-
-    zip_path = os.path.join(session_dir, "result.zip")
-    with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zipf:
-        for f in os.listdir(output_dir):
-            zipf.write(os.path.join(output_dir, f), arcname=f)
-
-    progress[session_id]["running"] = False
-
-# ==============================
-# ENDPOINTS
-# ==============================
-
-@app.post("/upload")
-async def upload(files: List[UploadFile], background: BackgroundTasks):
-    if not files:
-        raise HTTPException(400, "No se subieron archivos")
-
-    if len(files) > MAX_IMAGES:
-        raise HTTPException(
-            400,
-            f"Máximo permitido: {MAX_IMAGES} imágenes ({MAX_IMAGES//2} cartas)"
+    def pad(img):
+        return cv2.copyMakeBorder(
+            img, 0, h - img.shape[0], 0, 0,
+            cv2.BORDER_CONSTANT, value=[0, 0, 0]
         )
 
-    if len(files) % 2 != 0:
-        raise HTTPException(
-            400,
-            "Debes subir un número par de imágenes (front/back)"
-        )
+    return np.hstack((pad(front), pad(back)))
 
+
+# ---------- API ----------
+
+@app.post("/process")
+async def process(files: list[UploadFile] = File(...)):
     session_id = str(uuid.uuid4())
-    session_dir = os.path.join(SESSIONS_DIR, session_id)
+    session_dir = os.path.join(BASE_SESSIONS, session_id)
     os.makedirs(session_dir, exist_ok=True)
 
-    saved = []
+    total_pairs = len(files) // 2
+    progress_state[session_id] = {
+        "current": 0,
+        "total": total_pairs,
+        "done": False
+    }
+
+    image_paths = []
+
     for i, file in enumerate(files):
         path = os.path.join(session_dir, f"{i}.jpg")
         with open(path, "wb") as f:
             shutil.copyfileobj(file.file, f)
-        saved.append(path)
+        image_paths.append(path)
 
-    progress[session_id] = {
-        "current": 0,
-        "total": 0,
-        "running": True
-    }
+    outputs = []
 
-    background.add_task(process_images, session_id, saved)
+    for i in range(0, len(image_paths), 2):
+        img1 = cv2.imread(image_paths[i])
+        img2 = cv2.imread(image_paths[i + 1])
+
+        front, back = detect_front_back(img1, img2)
+
+        bbox = find_card_bbox(front)
+        if bbox:
+            front = crop_with_margin(front, bbox)
+            back = crop_with_margin(back, bbox)
+
+        combined = combine_images(front, back)
+
+        out_path = os.path.join(session_dir, f"card_{i // 2 + 1}.jpg")
+        cv2.imwrite(out_path, combined)
+        outputs.append(out_path)
+
+        progress_state[session_id]["current"] += 1
+
+    zip_path = os.path.join(session_dir, "cards.zip")
+    with zipfile.ZipFile(zip_path, "w") as zipf:
+        for img in outputs:
+            zipf.write(img, arcname=os.path.basename(img))
+
+    progress_state[session_id]["done"] = True
     return {"session_id": session_id}
 
+
 @app.get("/progress/{session_id}")
-def get_progress(session_id: str):
-    if session_id not in progress:
-        raise HTTPException(404, "Sesión no encontrada")
-    return progress[session_id]
+def progress(session_id: str):
+    state = progress_state.get(session_id)
+    if not state:
+        return {"progress": 0, "done": False}
+
+    percent = int((state["current"] / max(state["total"], 1)) * 100)
+    return {"progress": percent, "done": state["done"]}
+
 
 @app.get("/download/{session_id}")
 def download(session_id: str):
-    zip_path = os.path.join(SESSIONS_DIR, session_id, "result.zip")
+    zip_path = os.path.join(BASE_SESSIONS, session_id, "cards.zip")
     if not os.path.exists(zip_path):
-        raise HTTPException(404, "Archivo no disponible")
-
-    return FileResponse(
-        zip_path,
-        filename="tcg_images.zip",
-        media_type="application/zip"
-    )
+        return JSONResponse({"detail": "Archivo no disponible"}, status_code=404)
+    return FileResponse(zip_path, filename="cards.zip")
