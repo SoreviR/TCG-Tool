@@ -62,17 +62,22 @@ def find_card_bbox(img):
     return x, y, w, h
 
 
-def crop_with_margin(img, bbox):
-    x, y, w, h = bbox
+def crop_with_margin(img):
+    # Always crop a 5mm frame from each edge
     h_img, w_img = img.shape[:2]
+    margin_mm = 5
+    dpi = 300  # assumed DPI
+    mm_per_inch = 25.4
+    margin_px = int((margin_mm / mm_per_inch) * dpi)
 
-    margin = int(min(w, h) * 0.03)  # ≈5mm visual
+    x1 = margin_px
+    y1 = margin_px
+    x2 = w_img - margin_px
+    y2 = h_img - margin_px
 
-    x1 = max(x - margin, 0)
-    y1 = max(y - margin, 0)
-    x2 = min(x + w + margin, w_img)
-    y2 = min(y + h + margin, h_img)
-
+    # Ensure we don't crop beyond image bounds
+    if x2 <= x1 or y2 <= y1:
+        return img  # return original if crop is invalid
     return img[y1:y2, x1:x2]
 
 
@@ -119,10 +124,9 @@ async def process(files: list[UploadFile] = File(...)):
 
         front, back = detect_front_back(img1, img2)
 
-        bbox = find_card_bbox(front)
-        if bbox:
-            front = crop_with_margin(front, bbox)
-            back = crop_with_margin(back, bbox)
+        # Remove bbox detection, just crop 5mm from each edge
+        front = crop_with_margin(front)
+        back = crop_with_margin(back)
 
         combined = combine_images(front, back)
 
