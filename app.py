@@ -4,6 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
+from dotenv import load_dotenv
 import os
 import shutil
 import uuid
@@ -15,8 +16,10 @@ import httpx
 
 # ================= CONFIG =================
 
-RESEND_API_KEY = "re_LhC1jcSk_9oGNizMRrfB7PripcvpX8dVL"
-ADMIN_TOKEN = "changeme-admin-token"
+load_dotenv()
+
+RESEND_API_KEY = os.getenv("RESEND_API_KEY")
+ADMIN_TOKEN = os.getenv("ADMIN_TOKEN")
 
 BASE_SESSIONS = "sessions"
 BASE_DB = "feedback.db"
@@ -193,7 +196,7 @@ async def submit_feedback(feedback: FeedbackIn):
                 },
                 json={
                     "from": "TCG Tool <onboarding@resend.dev>",
-                    "to": ["rob.riveros.es@gmail.com"],
+                    "to": [os.getenv("TO_EMAIL")],
                     "subject": f"Nuevo feedback ({feedback.category})",
                     "html": f"""
                         <h2>Nuevo Feedback</h2>
