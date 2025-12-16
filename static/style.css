@@ -273,6 +273,7 @@ body {
 .modal {
   display: none;
   position: fixed;
+  padding: 16px;
   inset: 0;
   background: rgba(0, 0, 0, 0.45);
   backdrop-filter: blur(4px);
@@ -284,21 +285,37 @@ body {
 .modal-content {
   width: 100%;
   max-width: 420px;
+  max-height: 90vh;
+  overflow-y: auto;
   background: var(--card);
-  padding: 24px;
   border-radius: 16px;
+  padding: 20px;
   display: flex;
   flex-direction: column;
   gap: 14px;
+  box-shadow: var(--shadow);
+}
+
+.modal-content h3 {
+  margin: 0;
+  text-align: center;
 }
 
 .modal-content textarea,
 .modal-content input,
 .modal-content select {
-  padding: 12px;
+  /* width: 100%; */
+  padding: 10px;
   border-radius: 8px;
   border: none;
-  font-size: 1rem;
+  font-size: 0.95rem;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
 }
 
 .feedback-status {
@@ -314,4 +331,18 @@ body {
 }
 .feedback-status.loading {
   color: #a5b4fc;
+}
+
+/* ===== MOBILE FIX ===== */
+
+@media (max-width: 480px) {
+  .feedback-btn {
+    right: 12px;
+    bottom: 12px;
+    padding: 12px 16px;
+  }
+
+  .modal-content {
+    max-height: 85vh;
+  }
 }

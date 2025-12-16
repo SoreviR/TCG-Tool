@@ -6,7 +6,6 @@
     <link rel="stylesheet" href="/static/style.css" />
   </head>
   <body>
-    <!-- BOTÓN MENU -->
     <button id="menuToggle" class="menu-toggle" type="button">
       <span class="hamburger">
         <span class="bar bar1"></span>
@@ -15,7 +14,6 @@
       </span>
     </button>
 
-    <!-- NAVBAR -->
     <nav id="navbar" class="navbar">
       <h2>TCG Tool</h2>
       <div class="navbar-actions">
@@ -37,14 +35,16 @@
 
         <div id="preview" class="preview"></div>
 
-        <div class="progress-container">
-          <div id="progressBar"></div>
+        <!-- PROGRESS -->
+        <div class="progress-wrapper">
+          <div class="progress-container">
+            <div id="progressBar"></div>
+          </div>
+          <span id="progressText">0%</span>
         </div>
 
         <div class="actions">
-          <button id="processBtn" class="primary-btn" data-i18n="process">
-            Process
-          </button>
+          <button id="processBtn" class="primary-btn">Process</button>
           <button id="resetBtn" class="secondary-btn">Reset</button>
         </div>
 
@@ -54,13 +54,12 @@
       </main>
     </div>
 
-    <!-- FEEDBACK BUTTON -->
+    <!-- FEEDBACK -->
     <button id="feedbackBtn" class="feedback-btn">Feedback</button>
 
-    <!-- FEEDBACK MODAL -->
     <div id="feedbackModal" class="modal">
       <div class="modal-content">
-        <h3 data-i18n="feedback_title">Feedback</h3>
+        <h3>Feedback</h3>
 
         <select id="fbCategory">
           <option value="">Select category</option>
@@ -70,7 +69,6 @@
         </select>
 
         <textarea id="fbMessage" placeholder="Your feedback..."></textarea>
-
         <input id="fbEmail" type="email" placeholder="Email (optional)" />
 
         <div id="fbStatus" class="feedback-status"></div>

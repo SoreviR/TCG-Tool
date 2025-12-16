@@ -1,7 +1,9 @@
 document.addEventListener("DOMContentLoaded", () => {
   let files = [];
   let sessionId = null;
+  let polling = false;
 
+  /* ================= NAVBAR ================= */
   const dict = {
     es: {
       title: "Procesador de Cartas TCG",
@@ -41,11 +43,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   applyLang();
   applyTheme();
-
-  menuToggle.onclick = () => {
+  menuToggle.addEventListener("click", () => {
     const open = navbar.classList.toggle("open");
     menuToggle.classList.toggle("open", open);
-  };
+    menuToggle.setAttribute("aria-expanded", open ? "true" : "false");
+  });
 
   langBtn.onclick = () => {
     lang = lang === "es" ? "en" : "es";
@@ -59,16 +61,15 @@ document.addEventListener("DOMContentLoaded", () => {
     applyTheme();
   };
 
+  /* ================= FILE UPLOAD ================= */
+
   const dropzone = document.getElementById("dropzone");
   const input = document.getElementById("files");
   const preview = document.getElementById("preview");
-  const progressBar = document.getElementById("progressBar");
-  const progressText = document.getElementById("progressText");
-  const download = document.getElementById("download");
-  const resetBtn = document.getElementById("resetBtn");
 
   dropzone.onclick = () => input.click();
   dropzone.ondragover = (e) => e.preventDefault();
+
   dropzone.ondrop = (e) => {
     e.preventDefault();
     files.push(...e.dataTransfer.files);
@@ -89,47 +90,76 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  document.getElementById("processBtn").onclick = async () => {
-    if (!files.length) return;
+  /* ================= PROCESS ================= */
+
+  const progressBar = document.getElementById("progressBar");
+  const progressText = document.getElementById("progressText");
+  const download = document.getElementById("download");
+  const processBtn = document.getElementById("processBtn");
+
+  processBtn.onclick = async () => {
+    if (!files.length || polling) return;
+
+    processBtn.disabled = true;
+    processBtn.textContent = "Processing...";
+    progressBar.style.width = "0%";
+    progressText.textContent = "0%";
+    download.style.display = "none";
 
     const fd = new FormData();
     files.forEach((f) => fd.append("files", f));
 
-    const res = await fetch("/process", { method: "POST", body: fd });
+    const res = await fetch("/process", {
+      method: "POST",
+      body: fd,
+    });
+
     const data = await res.json();
     sessionId = data.session_id;
-
+    polling = true;
     pollProgress();
-  };
-
-  resetBtn.onclick = () => {
-    files = [];
-    sessionId = null;
-    preview.innerHTML = "";
-    input.value = "";
-    progressBar.style.width = "0%";
-    progressText.textContent = "0%";
-    download.style.display = "none";
   };
 
   async function pollProgress() {
     if (!sessionId) return;
 
-    const res = await fetch(`/progress/${sessionId}`);
-    const data = await res.json();
+    try {
+      const res = await fetch(`/progress/${sessionId}`);
+      const data = await res.json();
 
-    progressBar.style.width = data.progress + "%";
-    progressText.textContent = data.progress + "%";
+      progressBar.style.width = data.progress + "%";
+      progressText.textContent = data.progress + "%";
 
-    if (!data.done) {
-      setTimeout(pollProgress, 500);
-    } else {
-      download.href = `/download/${sessionId}`;
-      download.style.display = "block";
+      if (!data.done) {
+        setTimeout(pollProgress, 500);
+      } else {
+        polling = false;
+        processBtn.disabled = false;
+        processBtn.textContent = "Process";
+        download.href = `/download/${sessionId}`;
+        download.style.display = "block";
+      }
+    } catch {
+      setTimeout(pollProgress, 1000);
     }
   }
 
-  // ===== FEEDBACK =====
+  /* ================= RESET ================= */
+
+  document.getElementById("resetBtn").onclick = () => {
+    files = [];
+    sessionId = null;
+    polling = false;
+    preview.innerHTML = "";
+    progressBar.style.width = "0%";
+    progressText.textContent = "0%";
+    download.style.display = "none";
+    processBtn.disabled = false;
+    processBtn.textContent = "Process";
+    input.value = "";
+  };
+
+  /* ================= FEEDBACK ================= */
 
   const fbBtn = document.getElementById("feedbackBtn");
   const fbModal = document.getElementById("feedbackModal");
@@ -152,48 +182,23 @@ document.addEventListener("DOMContentLoaded", () => {
     const category = document.getElementById("fbCategory").value;
 
     if (!category || !message) {
-      fbStatus.textContent =
-        lang === "es"
-          ? "Selecciona categoría y escribe un mensaje."
-          : "Select category and write a message.";
+      fbStatus.textContent = "Please complete category and message.";
       fbStatus.className = "feedback-status error";
       return;
     }
 
-    sendFb.disabled = true;
-    fbStatus.textContent = lang === "es" ? "Enviando..." : "Sending...";
+    fbStatus.textContent = "Sending...";
     fbStatus.className = "feedback-status loading";
 
-    try {
-      await fetch("/feedback", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          category,
-          message,
-          email,
-          language: lang,
-          theme,
-        }),
-      });
+    await fetch("/feedback", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ category, message, email }),
+    });
 
-      fbStatus.textContent =
-        lang === "es"
-          ? "¡Gracias por tu feedback!"
-          : "Thank you for your feedback!";
-      fbStatus.className = "feedback-status success";
+    fbStatus.textContent = "Thank you!";
+    fbStatus.className = "feedback-status success";
 
-      document.getElementById("fbMessage").value = "";
-      document.getElementById("fbEmail").value = "";
-      document.getElementById("fbCategory").value = "";
-
-      setTimeout(() => (fbModal.style.display = "none"), 1500);
-    } catch {
-      fbStatus.textContent =
-        lang === "es" ? "Error al enviar." : "Error sending feedback.";
-      fbStatus.className = "feedback-status error";
-    } finally {
-      sendFb.disabled = false;
-    }
+    setTimeout(() => (fbModal.style.display = "none"), 1200);
   };
 });
