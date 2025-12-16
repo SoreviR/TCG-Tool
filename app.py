@@ -18,8 +18,8 @@ import httpx
 
 # load_dotenv()
 
-RESEND_API_KEY = os.environ.get("RESEND_API_KEY")
-ADMIN_TOKEN = os.environ.get("ADMIN_TOKEN")
+RESEND_API_KEY = "re_LhC1jcSk_9oGNizMRrfB7PripcvpX8dVL" # os.environ.get("RESEND_API_KEY")
+ADMIN_TOKEN = "changeme-admin-token" # os.environ.get("ADMIN_TOKEN")
 
 BASE_SESSIONS = "sessions"
 BASE_DB = "feedback.db"
@@ -196,7 +196,7 @@ async def submit_feedback(feedback: FeedbackIn):
                 },
                 json={
                     "from": "TCG Tool <onboarding@resend.dev>",
-                    "to": [os.getenv("TO_EMAIL")],
+                    "to": [os.getenv("rob.riveros.es@gmail.com")],
                     "subject": f"Nuevo feedback ({feedback.category})",
                     "html": f"""
                         <h2>Nuevo Feedback</h2>
