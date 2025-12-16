@@ -16,10 +16,10 @@ import httpx
 
 # ================= CONFIG =================
 
-load_dotenv()
+# load_dotenv()
 
-RESEND_API_KEY = os.getenv("RESEND_API_KEY")
-ADMIN_TOKEN = os.getenv("ADMIN_TOKEN")
+RESEND_API_KEY = os.environ.get("RESEND_API_KEY")
+ADMIN_TOKEN = os.environ.get("ADMIN_TOKEN")
 
 BASE_SESSIONS = "sessions"
 BASE_DB = "feedback.db"
