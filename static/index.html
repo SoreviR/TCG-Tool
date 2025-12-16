@@ -5,7 +5,9 @@
     <title>TCG Image Tool</title>
     <link rel="stylesheet" href="/static/style.css" />
   </head>
+
   <body>
+    <!-- MENU BUTTON -->
     <button id="menuToggle" class="menu-toggle" type="button">
       <span class="hamburger">
         <span class="bar bar1"></span>
@@ -14,6 +16,7 @@
       </span>
     </button>
 
+    <!-- NAVBAR -->
     <nav id="navbar" class="navbar">
       <h2>TCG Tool</h2>
       <div class="navbar-actions">
@@ -22,10 +25,10 @@
       </div>
     </nav>
 
+    <!-- MAIN -->
     <div class="page">
       <main class="content">
         <h1 data-i18n="title">TCG Image Processor</h1>
-
         <p data-i18n="desc">Upload card images in pairs (front/back).</p>
 
         <div id="dropzone" class="dropzone">
@@ -35,7 +38,6 @@
 
         <div id="preview" class="preview"></div>
 
-        <!-- PROGRESS -->
         <div class="progress-wrapper">
           <div class="progress-container">
             <div id="progressBar"></div>
@@ -44,39 +46,61 @@
         </div>
 
         <div class="actions">
-          <button id="processBtn" class="primary-btn">Process</button>
+          <button id="processBtn" class="primary-btn" data-i18n="process">
+            Process
+          </button>
           <button id="resetBtn" class="secondary-btn">Reset</button>
         </div>
 
-        <a id="download" class="download-link" style="display: none">
+        <a
+          id="download"
+          class="download-link"
+          style="display: none"
+          data-i18n="download"
+        >
           Download
         </a>
       </main>
     </div>
 
-    <!-- FEEDBACK -->
-    <button id="feedbackBtn" class="feedback-btn">Feedback</button>
+    <!-- FEEDBACK FLOATING BUTTON -->
+    <button id="feedbackBtn" class="feedback-btn" data-i18n="feedback">
+      Feedback
+    </button>
 
+    <!-- FEEDBACK MODAL -->
     <div id="feedbackModal" class="modal">
       <div class="modal-content">
-        <h3>Feedback</h3>
+        <button id="closeFeedback" class="modal-close" type="button">✕</button>
 
-        <select id="fbCategory">
-          <option value="">Select category</option>
-          <option value="bug">Bug</option>
-          <option value="idea">Idea / Feature</option>
-          <option value="general">General</option>
-        </select>
+        <h3 data-i18n="feedbackTitle">Tu opinión nos ayuda</h3>
 
-        <textarea id="fbMessage" placeholder="Your feedback..."></textarea>
-        <input id="fbEmail" type="email" placeholder="Email (optional)" />
+        <form id="feedbackForm">
+          <!-- CATEGORY -->
+          <select name="category">
+            <option value="">Select category</option>
+            <option value="bug">Bug</option>
+            <option value="idea">Idea / Feature</option>
+            <option value="general">General</option>
+          </select>
 
-        <div id="fbStatus" class="feedback-status"></div>
+          <!-- NAME -->
+          <input type="text" name="name" placeholder="Name (optional)" />
 
-        <div class="modal-actions">
-          <button id="sendFeedback" class="primary-btn">Send</button>
-          <button id="closeFeedback" class="secondary-btn">Cancel</button>
-        </div>
+          <!-- EMAIL (OPTIONAL) -->
+          <input type="email" name="email" placeholder="Email (optional)" />
+
+          <!-- MESSAGE -->
+          <textarea
+            name="message"
+            placeholder="Your feedback..."
+            required
+          ></textarea>
+
+          <button type="submit" class="primary-btn" data-i18n="feedbackSend">
+            Send
+          </button>
+        </form>
       </div>
     </div>
 

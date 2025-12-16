@@ -270,16 +270,22 @@ body {
   z-index: 1300;
 }
 
+/* MODAL BASE */
 .modal {
   display: none;
   position: fixed;
-  padding: 16px;
   inset: 0;
+  padding: 16px;
   background: rgba(0, 0, 0, 0.45);
   backdrop-filter: blur(4px);
   z-index: 1400;
   align-items: center;
   justify-content: center;
+}
+
+/* 👉 THIS WAS MISSING */
+.modal.open {
+  display: flex;
 }
 
 .modal-content {
@@ -311,11 +317,19 @@ body {
   font-size: 0.95rem;
 }
 
-.modal-actions {
+.modal-close {
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-size: 1.2rem;
+  cursor: pointer;
+  align-self: flex-end;
+}
+
+#feedbackForm {
   display: flex;
-  gap: 10px;
-  justify-content: flex-end;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .feedback-status {

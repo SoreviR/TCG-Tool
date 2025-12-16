@@ -1,82 +1,106 @@
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
-import os, shutil, uuid, zipfile, sqlite3, smtplib
-from email.message import EmailMessage
+from typing import Optional
+from datetime import datetime
+import os
+import shutil
+import uuid
+import zipfile
 import cv2
 import numpy as np
+import sqlite3
+import httpx
 
-# ===================== CONFIG =====================
+# ================= CONFIG =================
 
-FEEDBACK_DB = "feedback.db"
+RESEND_API_KEY = "re_LhC1jcSk_9oGNizMRrfB7PripcvpX8dVL"
+ADMIN_TOKEN = "changeme-admin-token"
 
-EMAIL_ENABLED = True
-SMTP_SERVER = "smtp.gmail.com"
-SMTP_PORT = 587
-SMTP_USER = "TU_EMAIL@gmail.com"
-SMTP_PASS = "TU_APP_PASSWORD"
-EMAIL_TO = "TU_EMAIL@gmail.com"
+BASE_SESSIONS = "sessions"
+BASE_DB = "feedback.db"
 
-# ==================================================
+os.makedirs(BASE_SESSIONS, exist_ok=True)
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-BASE_SESSIONS = "sessions"
-os.makedirs(BASE_SESSIONS, exist_ok=True)
-
 progress_state = {}
 
-# ===================== DB =====================
+# ================= DB =================
 
 def init_db():
-    with sqlite3.connect(FEEDBACK_DB) as conn:
-        conn.execute("""
+    conn = sqlite3.connect(BASE_DB)
+    c = conn.cursor()
+    c.execute("""
         CREATE TABLE IF NOT EXISTS feedback (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            category TEXT NOT NULL,
+            name TEXT,
             email TEXT,
-            message TEXT,
-            language TEXT,
-            theme TEXT
+            message TEXT NOT NULL,
+            created_at TEXT NOT NULL
         )
-        """)
+    """)
+    conn.commit()
+    conn.close()
 
 init_db()
 
-# ===================== PAGES =====================
+# ================= MODELS =================
+
+class FeedbackIn(BaseModel):
+    category: str
+    message: str
+    name: Optional[str] = None
+    email: Optional[str] = None
+
+# ================= ROUTES =================
 
 @app.get("/", response_class=HTMLResponse)
 def index():
     with open("static/index.html", encoding="utf-8") as f:
         return f.read()
 
-# ===================== IMAGE UTILS =====================
+# ================= IMAGE UTILS =================
 
 def visual_score(img):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     edges = cv2.Canny(gray, 100, 200)
-    lap = cv2.Laplacian(gray, cv2.CV_64F).var()
-    return np.sum(edges > 0) * 0.5 + lap * 10
+    edge_score = np.sum(edges > 0)
+    lap_score = cv2.Laplacian(gray, cv2.CV_64F).var()
+
+    hist = cv2.calcHist([gray], [0], None, [256], [0, 256])
+    hist = hist / hist.sum()
+    entropy = -np.sum(hist * np.log2(hist + 1e-9))
+
+    return edge_score * 0.5 + lap_score * 10 + entropy * 1000
 
 def detect_front_back(img1, img2):
-    return (img1, img2) if visual_score(img1) >= visual_score(img2) else (img2, img1)
+    s1 = visual_score(img1)
+    s2 = visual_score(img2)
+    return (img1, img2) if s1 >= s2 else (img2, img1)
 
 def crop_with_margin(img):
     h, w = img.shape[:2]
-    margin_px = int((5 / 25.4) * 300)
-    return img[margin_px:h - margin_px, margin_px:w - margin_px]
+    margin_mm = 5
+    dpi = 300
+    px = int((margin_mm / 25.4) * dpi)
+    return img[px:h - px, px:w - px]
 
 def combine_images(front, back):
     h = max(front.shape[0], back.shape[0])
 
     def pad(img):
-        return cv2.copyMakeBorder(img, 0, h - img.shape[0], 0, 0,
-                                  cv2.BORDER_CONSTANT, value=[0, 0, 0])
+        return cv2.copyMakeBorder(
+            img, 0, h - img.shape[0], 0, 0,
+            cv2.BORDER_CONSTANT, value=[0, 0, 0]
+        )
+
     return np.hstack((pad(front), pad(back)))
 
-# ===================== API =====================
+# ================= PROCESS =================
 
 @app.post("/process")
 async def process(files: list[UploadFile] = File(...)):
@@ -84,7 +108,8 @@ async def process(files: list[UploadFile] = File(...)):
     session_dir = os.path.join(BASE_SESSIONS, session_id)
     os.makedirs(session_dir, exist_ok=True)
 
-    progress_state[session_id] = {"current": 0, "total": len(files)//2, "done": False}
+    total_pairs = len(files) // 2
+    progress_state[session_id] = {"current": 0, "total": total_pairs, "done": False}
 
     paths = []
     for i, f in enumerate(files):
@@ -97,66 +122,118 @@ async def process(files: list[UploadFile] = File(...)):
 
     for i in range(0, len(paths), 2):
         img1 = cv2.imread(paths[i])
-        img2 = cv2.imread(paths[i+1])
+        img2 = cv2.imread(paths[i + 1])
 
         front, back = detect_front_back(img1, img2)
-        combined = combine_images(crop_with_margin(front), crop_with_margin(back))
+        front = crop_with_margin(front)
+        back = crop_with_margin(back)
 
-        out = os.path.join(session_dir, f"card_{i//2+1}.jpg")
-        cv2.imwrite(out, combined)
-        outputs.append(out)
+        combined = combine_images(front, back)
+        out_path = os.path.join(session_dir, f"card_{i//2 + 1}.jpg")
+        cv2.imwrite(out_path, combined)
 
+        outputs.append(out_path)
         progress_state[session_id]["current"] += 1
 
     zip_path = os.path.join(session_dir, "cards.zip")
-    with zipfile.ZipFile(zip_path, "w") as z:
-        for f in outputs:
-            z.write(f, os.path.basename(f))
+    with zipfile.ZipFile(zip_path, "w") as zipf:
+        for img in outputs:
+            zipf.write(img, arcname=os.path.basename(img))
 
     progress_state[session_id]["done"] = True
     return {"session_id": session_id}
 
 @app.get("/progress/{session_id}")
 def progress(session_id: str):
-    s = progress_state.get(session_id, {})
-    pct = int((s.get("current", 0) / max(s.get("total", 1), 1)) * 100)
-    return {"progress": pct, "done": s.get("done", False)}
+    state = progress_state.get(session_id)
+    if not state:
+        return {"progress": 0, "done": False}
+
+    percent = int((state["current"] / max(state["total"], 1)) * 100)
+    return {"progress": percent, "done": state["done"]}
 
 @app.get("/download/{session_id}")
 def download(session_id: str):
-    path = os.path.join(BASE_SESSIONS, session_id, "cards.zip")
-    if not os.path.exists(path):
+    zip_path = os.path.join(BASE_SESSIONS, session_id, "cards.zip")
+    if not os.path.exists(zip_path):
         return JSONResponse({"detail": "Archivo no disponible"}, status_code=404)
-    return FileResponse(path, filename="cards.zip")
+    return FileResponse(zip_path, filename="cards.zip")
 
-# ===================== FEEDBACK =====================
-
-class Feedback(BaseModel):
-    message: str
-    email: str | None = None
-    language: str
-    theme: str
+# ================= FEEDBACK =================
 
 @app.post("/feedback")
-def feedback(data: Feedback):
-    with sqlite3.connect(FEEDBACK_DB) as conn:
-        conn.execute(
-            "INSERT INTO feedback (email, message, language, theme) VALUES (?, ?, ?, ?)",
-            (data.email, data.message, data.language, data.theme)
-        )
+async def submit_feedback(feedback: FeedbackIn):
+    created_at = datetime.utcnow().isoformat()
 
-    if EMAIL_ENABLED:
-        msg = EmailMessage()
-        msg["Subject"] = "Nuevo Feedback - TCG Tool"
-        msg["From"] = SMTP_USER
-        msg["To"] = EMAIL_TO
-        msg.set_content(
-            f"Mensaje:\n{data.message}\n\nEmail: {data.email}\nIdioma: {data.language}\nTema: {data.theme}"
-        )
+    conn = sqlite3.connect(BASE_DB)
+    c = conn.cursor()
+    c.execute(
+        """
+        INSERT INTO feedback (category, name, email, message, created_at)
+        VALUES (?, ?, ?, ?, ?)
+        """,
+        (
+            feedback.category,
+            feedback.name,
+            feedback.email,
+            feedback.message,
+            created_at,
+        ),
+    )
+    conn.commit()
+    conn.close()
 
-        with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as s:
-            s.starttls()
-            s.login(SMTP_USER, SMTP_PASS)
-            s.send_message(msg)
+    if RESEND_API_KEY:
+        async with httpx.AsyncClient() as client:
+            await client.post(
+                "https://api.resend.com/emails",
+                headers={
+                    "Authorization": f"Bearer {RESEND_API_KEY}",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "from": "TCG Tool <onboarding@resend.dev>",
+                    "to": ["rob.riveros.es@gmail.com"],
+                    "subject": f"Nuevo feedback ({feedback.category})",
+                    "html": f"""
+                        <h2>Nuevo Feedback</h2>
+                        <p><b>Category:</b> {feedback.category}</p>
+                        <p><b>Name:</b> {feedback.name or "Anonymous"}</p>
+                        <p><b>Email:</b> {feedback.email or "Not provided"}</p>
+                        <hr />
+                        <p>{feedback.message}</p>
+                        <small>{created_at}</small>
+                    """,
+                },
+            )
 
-    return {"status": "ok"}
+    return {"ok": True}
+
+# ================= ADMIN =================
+
+@app.get("/admin/feedback")
+def admin_feedback(token: str):
+    if token != ADMIN_TOKEN:
+        raise HTTPException(status_code=403, detail="Unauthorized")
+
+    conn = sqlite3.connect(BASE_DB)
+    c = conn.cursor()
+    c.execute(
+        "SELECT category, name, email, message, created_at FROM feedback ORDER BY id DESC"
+    )
+    rows = c.fetchall()
+    conn.close()
+
+    html = "<h1>Feedback</h1><ul>"
+    for cat, name, email, msg, date in rows:
+        html += f"""
+        <li>
+          <b>{cat}</b> – {name or "Anonymous"} ({email or "no email"})<br/>
+          {msg}<br/>
+          <small>{date}</small>
+        </li>
+        <hr>
+        """
+    html += "</ul>"
+
+    return HTMLResponse(html)
