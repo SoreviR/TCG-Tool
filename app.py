@@ -18,7 +18,7 @@ import httpx
 
 # load_dotenv()
 
-RESEND_API_KEY = "re_LhC1jcSk_9oGNizMRrfB7PripcvpX8dVL" # os.environ.get("RESEND_API_KEY")
+RESEND_API_KEY = os.environ.get("RESEND_API_KEY")
 ADMIN_TOKEN = "changeme-admin-token" # os.environ.get("ADMIN_TOKEN")
 
 BASE_SESSIONS = "sessions"
