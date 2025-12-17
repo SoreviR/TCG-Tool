@@ -1,3 +1,5 @@
+// const { version } = require("react");
+
 document.addEventListener("DOMContentLoaded", () => {
   let files = [];
   let sessionId = null;
@@ -7,21 +9,43 @@ document.addEventListener("DOMContentLoaded", () => {
       title: "Procesador de Cartas TCG",
       desc: "Sube imágenes en pares (front/back). Se recortará un marco de 5mm.",
       drop: "Arrastra imágenes o haz click aquí",
+      order: "Frontal y reverso, en pares. El orden no importa.",
       process: "Procesar",
       download: "Descargar",
+      sideTitle: "Cómo funciona",
+      sideStep1: "Sube imágenes de las cartas (frontal y reverso).",
+      sideStep2:
+        "La herramienta recortará automáticamente un marco de 5mm en cada imagen.",
+      sideStep3: "Procesa y descarga los archivos listos para usar.",
+      sideNote: "Diseñado para diseños de imágenes TCG limpios y alineados.",
       feedback: "Feedback",
       feedbackTitle: "Tu opinión nos ayuda",
       feedbackSend: "Enviar",
+      beta: "Beta · En desarrollo",
+      footerText:
+        "Si esta herramienta te ahorra tiempo, considera apoyar su desarrollo.",
+      supProject: "Apoya el proyecto",
     },
     en: {
       title: "TCG Image Processor",
       desc: "Upload images in pairs (front/back). A 5mm border will be cropped.",
       drop: "Drag & drop images or click here",
+      order: "Front and back, in pairs. Order doesn’t matter.",
       process: "Process",
       download: "Download",
+      sideTitle: "How it works",
+      sideStep1: "Upload front and back cards images.",
+      sideStep2:
+        "The tool will automatically crop a 5mm border from each image.",
+      sideStep3: "Process and download ready-to-use files.",
+      sideNote: "Designed for clean, aligned TCG image layouts.",
       feedback: "Feedback",
       feedbackTitle: "Your feedback helps us",
       feedbackSend: "Send",
+      beta: "Beta · In development",
+      footerText:
+        "If this tool saves you time, consider supporting its development.",
+      supProject: "Support the project",
     },
   };
 

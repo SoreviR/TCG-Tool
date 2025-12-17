@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <title>TCG Image Tool</title>
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon" />
     <link rel="stylesheet" href="/static/style.css" />
   </head>
 
@@ -32,7 +33,12 @@
         <p data-i18n="desc">Upload card images in pairs (front/back).</p>
 
         <div id="dropzone" class="dropzone">
-          <span data-i18n="drop">Drag & drop images or click here</span>
+          <strong data-i18n="drop"
+            >Drag & drop card images or click here</strong
+          >
+          <span data-i18n="order"
+            >Front and back, in pairs. Order doesn’t matter.</span
+          >
           <input type="file" id="files" multiple accept="image/*" hidden />
         </div>
 
@@ -61,6 +67,22 @@
           Download
         </a>
       </main>
+      <!-- SIDE INFO -->
+      <aside class="side-info">
+        <h3 data-i18n="sideTitle">How it works</h3>
+        <ol>
+          <li data-i18n="sideStep1">Upload front & back card images</li>
+          <li data-i18n="sideStep2">
+            The tool will automatically crop a 5mm border from each image.
+          </li>
+          <li data-i18n="sideStep3">
+            Process and download ready-to-use files.
+          </li>
+        </ol>
+        <p data-i18n="sideNote" class="side-note">
+          Designed for clean, aligned TCG image layouts.
+        </p>
+      </aside>
     </div>
 
     <!-- FEEDBACK FLOATING BUTTON -->
@@ -103,6 +125,40 @@
         </form>
       </div>
     </div>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <div class="footer-meta">
+        <span data-i18n="beta" class="badge">Beta · In development</span>
+        <span class="version">v0.1.0</span>
+      </div>
+
+      <p data-i18n="footerText" class="footer-text">
+        If this tool saves you time, consider supporting its development.
+      </p>
+
+      <a
+        href="https://www.paypal.com/donate/?business=rob.riveros.es@gmail.com&currency_code=USD"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="support-btn"
+      >
+        <!-- PayPal icon -->
+        <svg
+          class="paypal-icon"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path
+            fill="currentColor"
+            d="M7.6 20.2H4.2a.6.6 0 0 1-.6-.7L6.7 3.8a.6.6 0 0 1 .6-.5h6.6c3.5 0 5.8 1.6 5.8 4.6 0 3.9-2.5 6.5-6.6 6.5h-2.5l-.8 5.3a.6.6 0 0 1-.6.5z"
+          />
+        </svg>
+
+        Support the project
+      </a>
+    </footer>
 
     <script src="/static/app.js" defer></script>
   </body>

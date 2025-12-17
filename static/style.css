@@ -152,6 +152,17 @@ body {
   cursor: pointer;
 }
 
+.dropzone strong {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.dropzone span {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
 /* ===== PREVIEW ===== */
 
 .preview {
@@ -268,6 +279,8 @@ body {
   font-weight: 600;
   cursor: pointer;
   z-index: 1300;
+  box-shadow: #000000;
+  font-size: 0.9rem;
 }
 
 /* MODAL BASE */
@@ -283,7 +296,6 @@ body {
   justify-content: center;
 }
 
-/* 👉 THIS WAS MISSING */
 .modal.open {
   display: flex;
 }
@@ -359,4 +371,108 @@ body {
   .modal-content {
     max-height: 85vh;
   }
+}
+
+/* =============================
+   SIDE INFO (HOW IT WORKS)
+============================= */
+
+.page {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 40px;
+  padding: 40px 20px;
+}
+
+.side-info {
+  max-width: 260px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-muted, #666);
+}
+
+.side-info h3 {
+  font-size: 16px;
+  margin-bottom: 12px;
+  color: var(--text-main, #666);
+}
+
+.side-info ol {
+  padding-left: 18px;
+  margin: 0 0 12px 0;
+}
+
+.side-info li {
+  margin-bottom: 8px;
+}
+
+.side-note {
+  font-size: 13px;
+  color: var(--text-muted, #777);
+}
+
+/* Hide side info on small screens */
+@media (max-width: 900px) {
+  .side-info {
+    display: none;
+  }
+}
+
+/* =============================
+   FOOTER
+============================= */
+
+.footer {
+  /* margin-top: 20px; */
+  padding: 24px 16px;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.footer-meta {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  font-size: 0.75rem;
+}
+
+.badge {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-muted);
+}
+
+.version {
+  opacity: 0.7;
+}
+
+.footer-text {
+  margin-bottom: 12px;
+}
+
+.support-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--primary);
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 500;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.support-btn:hover {
+  background: var(--primary);
+  color: #fff;
+}
+
+.paypal-icon {
+  width: 14px;
+  height: 14px;
 }
