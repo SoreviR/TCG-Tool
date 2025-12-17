@@ -26,9 +26,6 @@ if not ADMIN_TOKEN:
 BASE_SESSIONS = "sessions"
 BASE_DB = "feedback.db"
 
-print("RESEND_API_KEY:", RESEND_API_KEY)
-print("FEEDBACK_EMAIL_TO:", FEEDBACK_EMAIL_TO)
-
 
 os.makedirs(BASE_SESSIONS, exist_ok=True)
 
