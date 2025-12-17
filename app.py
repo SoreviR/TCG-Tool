@@ -20,6 +20,9 @@ RESEND_API_KEY = os.getenv("RESEND_API_KEY")
 ADMIN_TOKEN = os.getenv("ADMIN_TOKEN")
 FEEDBACK_EMAIL_TO = os.getenv("FEEDBACK_EMAIL_TO")
 
+if not ADMIN_TOKEN:
+    raise RuntimeError("ADMIN_TOKEN environment variable is required")
+
 BASE_SESSIONS = "sessions"
 BASE_DB = "feedback.db"
 
