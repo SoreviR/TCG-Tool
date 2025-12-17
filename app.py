@@ -4,6 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
+from dotenv import load_dotenv
 import os
 import shutil
 import uuid
@@ -15,6 +16,7 @@ import httpx
 
 # ================= CONFIG =================
 
+load_dotenv()
 
 RESEND_API_KEY = os.getenv("RESEND_API_KEY")
 ADMIN_TOKEN = os.getenv("ADMIN_TOKEN")
