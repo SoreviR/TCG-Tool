@@ -16,13 +16,18 @@ import httpx
 
 # ================= CONFIG =================
 
-# load_dotenv()
+load_dotenv()
 
-RESEND_API_KEY = os.environ.get("RESEND_API_KEY")
-ADMIN_TOKEN = "changeme-admin-token" # os.environ.get("ADMIN_TOKEN")
+RESEND_API_KEY = os.getenv("RESEND_API_KEY")
+ADMIN_TOKEN = os.getenv("ADMIN_TOKEN")
+FEEDBACK_EMAIL_TO = os.getenv("FEEDBACK_EMAIL_TO")
 
 BASE_SESSIONS = "sessions"
 BASE_DB = "feedback.db"
+
+print("RESEND_API_KEY:", RESEND_API_KEY)
+print("FEEDBACK_EMAIL_TO:", FEEDBACK_EMAIL_TO)
+
 
 os.makedirs(BASE_SESSIONS, exist_ok=True)
 
@@ -186,8 +191,11 @@ async def submit_feedback(feedback: FeedbackIn):
     conn.commit()
     conn.close()
 
-    if RESEND_API_KEY:
+    if RESEND_API_KEY and FEEDBACK_EMAIL_TO:
+
         async with httpx.AsyncClient() as client:
+
+            
             await client.post(
                 "https://api.resend.com/emails",
                 headers={
@@ -195,8 +203,8 @@ async def submit_feedback(feedback: FeedbackIn):
                     "Content-Type": "application/json",
                 },
                 json={
-                    "from": "TCG Tool <onboarding@resend.dev>",
-                    "to": [os.getenv("rob.riveros.es@gmail.com")],
+                    "from": "Resend <onboarding@resend.dev>",
+                    "to": [FEEDBACK_EMAIL_TO],
                     "subject": f"Nuevo feedback ({feedback.category})",
                     "html": f"""
                         <h2>Nuevo Feedback</h2>
@@ -208,9 +216,13 @@ async def submit_feedback(feedback: FeedbackIn):
                         <small>{created_at}</small>
                     """,
                 },
+
             )
 
+            
+
     return {"ok": True}
+
 
 # ================= ADMIN =================
 
