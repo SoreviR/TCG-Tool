@@ -6,6 +6,8 @@
   --glass: rgba(30, 41, 59, 0.7);
   --blur: 16px;
   --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  --card-bg: #000;
+  --card-text: #ddd;
 }
 
 body.light {
@@ -14,6 +16,8 @@ body.light {
   --card: #ffffff;
   --glass: rgba(255, 255, 255, 0.7);
   --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+  --card-bg: #000;
+  --card-text: #ddd;
 }
 
 body {
@@ -448,7 +452,7 @@ body {
 }
 
 .roadmap-card {
-  background: var(--card-bg, #111);
+  background: var(--card-bg, #605f5f);
   border: 1px solid var(--border-color, #222);
   border-radius: 12px;
   padding: 1.25rem 1.4rem;
@@ -459,6 +463,7 @@ body {
   margin-bottom: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
+  color: var(--card-text);
 }
 
 .roadmap-card ul {
@@ -473,7 +478,7 @@ body {
   margin-bottom: 0.55rem;
   font-size: 0.9rem;
   line-height: 1.4;
-  color: var(--text, #ddd);
+  color: var(--card-text, #ddd);
 }
 
 .roadmap-card li::before {

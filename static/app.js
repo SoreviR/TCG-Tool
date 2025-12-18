@@ -15,6 +15,8 @@ document.addEventListener("DOMContentLoaded", () => {
       download: "Descargar",
       reset: "Reiniciar",
       roadmapTitle: "Hoja de ruta",
+      roadmapIntro:
+        "Este proyecto está en evolución activa. Esto es lo que está planeado.",
       roadmapNow: "Ahora",
       roadmapNow1: "Procesamiento por lotes",
       roadmapNow2: "Detección automática de frontal/reverso",
@@ -55,6 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
       reset: "Reset",
       download: "Download",
       roadmapTitle: "Roadmap",
+      roadmapIntro: "This project is actively evolving. Here’s what’s planned.",
       roadmapNow: "Now",
       roadmapNow1: "Batch image processing",
       roadmapNow2: "Automatic front/back detection",
