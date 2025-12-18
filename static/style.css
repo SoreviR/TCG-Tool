@@ -419,6 +419,90 @@ body {
   }
 }
 
+/* =========================
+   ROADMAP
+========================= */
+
+.roadmap {
+  max-width: 1200px;
+  margin: 4rem auto 3rem;
+  padding: 0 1.5rem;
+}
+
+.roadmap h2 {
+  font-size: 1.6rem;
+  margin-bottom: 0.5rem;
+}
+
+.roadmap-intro {
+  color: var(--text-muted, #777);
+  max-width: 600px;
+  margin-bottom: 2rem;
+  line-height: 1.5;
+}
+
+.roadmap-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.roadmap-card {
+  background: var(--card-bg, #111);
+  border: 1px solid var(--border-color, #222);
+  border-radius: 12px;
+  padding: 1.25rem 1.4rem;
+}
+
+.roadmap-card h4 {
+  font-size: 1rem;
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.roadmap-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.roadmap-card li {
+  position: relative;
+  padding-left: 1.1rem;
+  margin-bottom: 0.55rem;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: var(--text, #ddd);
+}
+
+.roadmap-card li::before {
+  content: "–";
+  position: absolute;
+  left: 0;
+  color: var(--accent, #4da3ff);
+}
+
+.roadmap-feedback {
+  margin-top: 1.8rem;
+  font-size: 0.9rem;
+  color: var(--text-muted, #777);
+}
+
+/* =========================
+   ROADMAP RESPONSIVE
+========================= */
+
+@media (max-width: 900px) {
+  .roadmap-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .roadmap {
+    margin-top: 3rem;
+  }
+}
+
 /* =============================
    FOOTER
 ============================= */

@@ -29,16 +29,20 @@
     <!-- MAIN -->
     <div class="page">
       <main class="content">
-        <h1 data-i18n="title">TCG Image Processor</h1>
-        <p data-i18n="desc">Upload card images in pairs (front/back).</p>
+        <!-- HERO -->
+        <h1 data-i18n="title">Create marketplace-ready TCG card images</h1>
+        <p data-i18n="desc">
+          Combine front and back card images into a single clean listing image.
+        </p>
 
+        <!-- DROPZONE -->
         <div id="dropzone" class="dropzone">
-          <strong data-i18n="drop"
-            >Drag & drop card images or click here</strong
-          >
-          <span data-i18n="order"
-            >Front and back, in pairs. Order doesn’t matter.</span
-          >
+          <strong data-i18n="drop">
+            Drag & drop front & back images (pairs), or click to select files
+          </strong>
+          <span data-i18n="order">
+            Upload images in pairs: front + back. Order doesn’t matter.
+          </span>
           <input type="file" id="files" multiple accept="image/*" hidden />
         </div>
 
@@ -52,41 +56,99 @@
         </div>
 
         <div class="actions">
-          <button id="processBtn" class="primary-btn" data-i18n="process">
+          <button data-i18n="process" id="processBtn" class="primary-btn">
             Process
           </button>
-          <button id="resetBtn" class="secondary-btn">Reset</button>
+          <button data-i18n="reset" id="resetBtn" class="secondary-btn">
+            Reset
+          </button>
         </div>
 
         <a
+          data-i18n="download"
           id="download"
           class="download-link"
           style="display: none"
-          data-i18n="download"
         >
           Download
         </a>
+
+        <!-- ROADMAP -->
+        <section class="roadmap">
+          <h2 data-i18n="roadmapTitle">Roadmap</h2>
+
+          <p data-i18n="roadmapIntro" class="roadmap-intro">
+            This project is actively evolving. Here’s what’s planned.
+          </p>
+
+          <div class="roadmap-grid">
+            <div class="roadmap-card">
+              <h4 data-i18n="roadmapNow">Now</h4>
+              <ul>
+                <li data-i18n="roadmapNow1">Batch image processing</li>
+                <li data-i18n="roadmapNow2">Automatic front/back detection</li>
+                <li data-i18n="roadmapNow3">Consistent crop and alignment</li>
+              </ul>
+            </div>
+
+            <div class="roadmap-card">
+              <h4 data-i18n="roadmapNext">Next</h4>
+              <ul>
+                <li data-i18n="roadmapNext1">
+                  Output presets for specific marketplaces
+                </li>
+                <li data-i18n="roadmapNext2">
+                  Manual rotation and quick fixes
+                </li>
+                <li data-i18n="roadmapNext3">Better mobile experience</li>
+              </ul>
+            </div>
+
+            <div class="roadmap-card">
+              <h4 data-i18n="roadmapLater">Later</h4>
+              <ul>
+                <li data-i18n="roadmapLater1">
+                  User accounts and saved preferences
+                </li>
+                <li data-i18n="roadmapLater2">Bulk ZIP upload</li>
+                <li data-i18n="roadmapLater3">Advanced image normalization</li>
+              </ul>
+            </div>
+          </div>
+
+          <p data-i18n="roadmapFeedback" class="roadmap-feedback">
+            Have an idea? Use the feedback button to help shape the roadmap.
+          </p>
+        </section>
       </main>
+
       <!-- SIDE INFO -->
       <aside class="side-info">
-        <h3 data-i18n="sideTitle">How it works</h3>
+        <h3 data-i18n="sideTitle">Why this tool?</h3>
+
+        <p data-i18n="sideIntro">
+          Most marketplaces allow only one image per card. This tool helps you
+          show both sides in a single, clean image.
+        </p>
+
         <ol>
-          <li data-i18n="sideStep1">Upload front & back card images</li>
+          <li data-i18n="sideStep1">
+            Upload front and back card images (order doesn’t matter)
+          </li>
           <li data-i18n="sideStep2">
-            The tool will automatically crop a 5mm border from each image.
+            Images are auto-cropped and aligned consistently
           </li>
-          <li data-i18n="sideStep3">
-            Process and download ready-to-use files.
-          </li>
+          <li data-i18n="sideStep3">Download ready-to-upload listing images</li>
         </ol>
+
         <p data-i18n="sideNote" class="side-note">
-          Designed for clean, aligned TCG image layouts.
+          Built by a seller, for sellers. Focused on speed and consistency.
         </p>
       </aside>
     </div>
 
     <!-- FEEDBACK FLOATING BUTTON -->
-    <button id="feedbackBtn" class="feedback-btn" data-i18n="feedback">
+    <button data-i18n="feedback" id="feedbackBtn" class="feedback-btn">
       Feedback
     </button>
 
@@ -95,31 +157,28 @@
       <div class="modal-content">
         <button id="closeFeedback" class="modal-close" type="button">✕</button>
 
-        <h3 data-i18n="feedbackTitle">Tu opinión nos ayuda</h3>
+        <h3 data-i18n="feedbackTitle">Your feedback helps improve the tool</h3>
 
         <form id="feedbackForm">
-          <!-- CATEGORY -->
           <select name="category">
-            <option value="">Select category</option>
-            <option value="bug">Bug</option>
-            <option value="idea">Idea / Feature</option>
-            <option value="general">General</option>
+            <option data-i18n="feedbackCategory" value="">
+              Select category
+            </option>
+            <option data-i18n="category1" value="bug">Bug</option>
+            <option data-i18n="category2" value="idea">Idea / Feature</option>
+            <option data-i18n="category3" value="general">General</option>
           </select>
 
-          <!-- NAME -->
           <input type="text" name="name" placeholder="Name (optional)" />
-
-          <!-- EMAIL (OPTIONAL) -->
           <input type="email" name="email" placeholder="Email (optional)" />
 
-          <!-- MESSAGE -->
           <textarea
             name="message"
             placeholder="Your feedback..."
             required
           ></textarea>
 
-          <button type="submit" class="primary-btn" data-i18n="feedbackSend">
+          <button data-i18n="feedbackSend" type="submit" class="primary-btn">
             Send
           </button>
         </form>
@@ -143,7 +202,6 @@
         rel="noopener noreferrer"
         class="support-btn"
       >
-        <!-- PayPal icon -->
         <svg
           class="paypal-icon"
           xmlns="http://www.w3.org/2000/svg"
@@ -155,7 +213,6 @@
             d="M7.6 20.2H4.2a.6.6 0 0 1-.6-.7L6.7 3.8a.6.6 0 0 1 .6-.5h6.6c3.5 0 5.8 1.6 5.8 4.6 0 3.9-2.5 6.5-6.6 6.5h-2.5l-.8 5.3a.6.6 0 0 1-.6.5z"
           />
         </svg>
-
         Support the project
       </a>
     </footer>
